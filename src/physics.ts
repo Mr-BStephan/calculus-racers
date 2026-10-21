@@ -1,5 +1,5 @@
 export type Point = {x:number;y:number};
-export type Course = {id:string;name:string;description:string;gravity:number;length:number;color:string;polygons:Point[][];checkpoints:Point[];finish:number};
+export type Course = {id:string;name:string;description:string;gravity:number;length:number;color:string;polygons:Point[][];checkpoints:Point[];finish:number;finishY?:number};
 export type Flight = {start:Point;end:Point;impact:Point;vx:number;vy:number;gravity:number;duration:number;peak:number;recovered:boolean};
 export const STEP=1/120;
 export function validateSettings(angle:number,power:number){if(!Number.isFinite(angle)||!Number.isFinite(power)||angle<5||angle>85||power<5||power>40)throw new Error('Angle must be 5–85° and speed 5–40 m/s.');}

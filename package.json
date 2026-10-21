@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "vitest run tests/physics.test.ts tests/race.test.ts tests/championship.test.ts tests/classroom.test.ts tests/appearance.test.ts",
+    "test": "vitest run tests/physics.test.ts tests/race.test.ts tests/championship.test.ts tests/classroom.test.ts tests/appearance.test.ts tests/training.test.ts",
     "test:rules": "firebase emulators:exec --only database \"vitest run tests/rules.test.ts\"",
     "test:rules:running": "vitest run tests/rules.test.ts",
     "test:e2e": "playwright test",

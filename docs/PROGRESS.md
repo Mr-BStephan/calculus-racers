@@ -23,3 +23,5 @@ Ruling: exact three-point example requires 19.963299660460276 m/s, not 19.95996.
 Ruling: deployment will initially be offline-only because no production Firebase configuration was supplied. Production setup and acceptance steps are explicit in README and VERIFICATION.md; emulator integration is not represented as production verification.
 
 Ruling: an observed Vary: Origin cache mismatch on JS/CSS caused a failed offline reload. Cache matching now ignores Vary only inside this app’s named precache of same-origin static build assets. Offline regression test passes.
+
+Training flag update: host-only Randomize training flag button in Training Meadow practice; shared 40–220 m terrain-grounded flag, fresh practice epoch, positions/strokes reset. Competitive finishes and one-shot missions retain their prescribed conditions. Verified 32 pure + 17 rules + 8 browser tests and TypeScript/build.

@@ -65,6 +65,9 @@
           },
           "strokeScoring": {
             ".validate": "newData.isBoolean()"
+          },
+          "trainingFlag": {
+            ".validate": "newData.isNumber() && newData.val() >= 40 && newData.val() <= 220 && newData.val() % 5 === 0 && newData.parent().child('course').val() === 0 && newData.parent().child('phase').val() === 'practice' && !newData.parent().hasChild('mission')"
           }
         },
         "members": {

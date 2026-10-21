@@ -1,0 +1,7 @@
+import {it,expect} from 'vitest';
+import {courseFor,randomTrainingFlag} from '../src/courses';
+import {replay} from '../src/race';
+it('places shared training flags on actual meadow terrain',()=>{const c=courseFor({course:0,phase:'practice',trainingFlag:125});expect(c.finish).toBe(125);expect(c.finishY).toBeCloseTo(1.875,8);expect(courseFor({course:0,phase:'practice',trainingFlag:80}).finishY).toBe(3);});
+it('never applies practice flags to races, other maps or one-shot rounds',()=>{expect(courseFor({course:0,phase:'race',trainingFlag:80}).finish).toBe(225);expect(courseFor({course:1,phase:'practice',trainingFlag:80}).finish).toBe(365);expect(courseFor({course:0,phase:'practice',trainingFlag:80,mission:0}).finish).toBe(225);});
+it('chooses a different reachable flag position each time',()=>{let previous=225;for(let i=0;i<300;i++){const next=randomTrainingFlag(previous,i);expect(next).not.toBe(previous);expect(next).toBeGreaterThanOrEqual(40);expect(next).toBeLessThanOrEqual(220);expect(next%5).toBe(0);previous=next;}});
+it('uses the randomized finish for completion and ignores shots before a reset',()=>{const c=courseFor({course:0,phase:'practice',trainingFlag:40}),control={epoch:2,course:0,phase:'practice' as const,startsAt:1000,trainingFlag:40},shot={epoch:2,seq:1,x:2,y:0,angle:45,power:20,at:1000};expect(replay(c,control,shot,10000).finishedAt).toBeDefined();expect(replay(c,{...control,epoch:3},shot,10000).finishedAt).toBeUndefined();});

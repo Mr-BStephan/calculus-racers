@@ -1,5 +1,9 @@
 # Verification — October 20, 2026
 
+## Random training flag update
+
+**32 pure tests**, **17 database rules tests**, and **8 Chrome browser tests** pass; strict TypeScript and production build pass. Coverage verifies terrain height at randomized flags, permitted target ranges, stale-shot rejection after reset, practice-only completion, host-only writes, invalid-condition rejection, and two independent students receiving identical targets and reset stroke counts. Full browser suite passed in 40.9 seconds. Production Firebase remains unconfigured.
+
 ## Sprite and color update
 
 **28 pure tests**, **16 database rules tests**, and **8 browser tests** pass. New coverage verifies independent species/color selection, legacy default colors, bounds/ownership validation, and recoloring actual Canvas pixels while preserving the silhouette. Two independent student clients selected different new species/colors, joined one emulator room, and restored saved appearance after reload; the browser test also checks the stored sprite/color indices. Production build and strict TypeScript check pass. Independent review found no important appearance regressions. An earlier development multiplayer run timed out; the subsequent complete eight-test browser run passed, including multiplayer in 24.5 seconds. Production Firebase setup remains pending.

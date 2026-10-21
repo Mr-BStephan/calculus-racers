@@ -1,5 +1,5 @@
 import {simulate,pointAt,type Course,type Point} from './physics';
-export type Control={epoch:number;course:number;phase:'lobby'|'practice'|'race'|'ended'|'study'|'fired';startsAt:number;endsAt?:number;mission?:number;studySeconds?:number;reveal?:boolean;strokeScoring?:boolean};
+export type Control={epoch:number;course:number;phase:'lobby'|'practice'|'race'|'ended'|'study'|'fired';startsAt:number;endsAt?:number;mission?:number;studySeconds?:number;reveal?:boolean;strokeScoring?:boolean;trainingFlag?:number};
 export type Launch={epoch:number;seq:number;x:number;y:number;angle:number;power:number;at:number};
 export function canLaunch(c:Control,t:number):boolean{return(c.phase==='practice'||c.phase==='race')&&t>=c.startsAt;}
 export function previewMode(c:Control,enabled:boolean,flying:boolean):'none'|'direction'|'trajectory'{if(!enabled||flying||c.mission!==undefined)return'none';return c.phase==='practice'?'trajectory':c.phase==='race'?'direction':'none';}

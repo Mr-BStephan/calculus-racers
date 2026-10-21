@@ -6,3 +6,10 @@ export const courses:Course[]=[
  {id:'moon',name:'Moon Dash',description:'Less gravity. More airtime. Aim for the stars.',gravity:1.62,length:1100,color:'#b7abf3',finish:1075,checkpoints:[{x:2,y:0},{x:272,y:12},{x:572,y:22},{x:842,y:8}],polygons:[ground(0,0,200),ground(260,12,210),ground(560,22,210),ground(830,8,270)]},
  {id:'championship',name:'Championship',description:'Hills, walls and bold lines. Find your own route.',gravity:9.8,length:510,color:'#76c6de',finish:495,checkpoints:[{x:2,y:0},{x:137,y:5},{x:267,y:0},{x:397,y:6}],polygons:[[{x:0,y:0},{x:45,y:0},{x:65,y:12},{x:85,y:0},{x:105,y:0},{x:105,y:-40},{x:0,y:-40}],ground(130,5,105),ground(260,0,100),ground(390,6,120),ground(177,5,3,-13),ground(306,0,3,-18)]}
 ];
+export function randomTrainingFlag(previous:number,entropy:number):number{const positions=Array.from({length:37},(_,i)=>40+i*5).filter(x=>x!==previous);if(!Number.isInteger(entropy)||entropy<0)throw new Error('Invalid random seed');return positions[entropy%positions.length];}
+export function courseFor(control:{course:number;phase:string;trainingFlag?:number;mission?:number}):Course{
+ const base=courses[control.course],x=control.trainingFlag;
+ if(control.course!==0||control.phase!=='practice'||control.mission!==undefined||x===undefined||!Number.isInteger(x)||x<40||x>220||x%5!==0)return base;
+ for(const poly of base.polygons)for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];if(b.x>a.x&&x>=a.x&&x<=b.x)return{...base,finish:x,finishY:a.y+(b.y-a.y)*(x-a.x)/(b.x-a.x)};}
+ return base;
+}
