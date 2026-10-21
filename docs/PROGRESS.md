@@ -33,3 +33,5 @@ Host beta fix: empty teacher rooms now explain spectator mode and offer Play as 
 October 21 update: cosmetic width/height 75–135%, actual six-metre landing finish with overshoot recovery, and fixed-screen local one-shot Island Championship. Host can select independent solo play for the class; individual shots use no Firebase writes. Original three-point round preserved as Classic. New isolated island mechanics/UI modules reuse shared deterministic physics, renderer and aiming controls.
 
 Follow-up: translucent terrain/progress map, local-character halo and foreground priority, 25% nearby-rival opacity/65% distant (spectator remains100%), five progressive race courses and five-map scorecard. Numeric savedcourse IDs retained with explicit logicalcourseOrder.35-racer desktop pack and hostmapchanges tested.
+
+Preview restriction: full aiming trajectory only in Training Meadow practice; other course practice and races use direction-only arrows. Solo islands remain preview-free; Classic post-round teacher solution reveal is unchanged.

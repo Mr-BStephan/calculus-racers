@@ -2,6 +2,7 @@ import { it,expect } from 'vitest';
 import { canLaunch, replay, leaderboard, previewMode } from '../src/race';
 import { courses } from '../src/courses';
 const control={epoch:2,course:0,phase:'race' as const,startsAt:10000};
+it('restricts full aiming trajectories to Training Meadow practice',()=>{for(let course=1;course<5;course++)expect(previewMode({...control,course,phase:'practice'},true,false)).toBe('direction');expect(previewMode({...control,course:0,phase:'practice'},true,false)).toBe('trajectory');});
 it('requires an actual landing within the finish radius and recovers an overshoot',()=>{const c={...courses[0],finish:40,finishY:0},e={epoch:2,seq:1,x:2,y:0,angle:45,power:20,at:10000};expect(replay(c,control,e,10001).finishedAt).toBeUndefined();expect(replay(c,control,e,100000).finishedAt).toBeDefined();const miss=replay({...c,finish:25},control,e,100000);expect(miss.finishedAt).toBeUndefined();expect(miss.position).toEqual(c.checkpoints[0]);expect(miss.overshot).toBe(true);expect(replay({...c,finish:55},control,e,100000).finishedAt).toBeUndefined();});
 it('blocks launches during countdown and permits them at zero',()=>{expect(canLaunch(control,9999)).toBe(false);expect(canLaunch(control,10000)).toBe(true);});
 it('ignores launches belonging to a prior reset',()=>{expect(replay(courses[0],control,{epoch:1,seq:1,x:2,y:0,angle:45,power:20,at:10001},12000).position).toEqual(courses[0].checkpoints[0]);});
