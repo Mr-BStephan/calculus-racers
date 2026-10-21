@@ -1,5 +1,9 @@
 # Verification — October 20, 2026
 
+## Sprite and color update
+
+**28 pure tests**, **16 database rules tests**, and **8 browser tests** pass. New coverage verifies independent species/color selection, legacy default colors, bounds/ownership validation, and recoloring actual Canvas pixels while preserving the silhouette. Two independent student clients selected different new species/colors, joined one emulator room, and restored saved appearance after reload; the browser test also checks the stored sprite/color indices. Production build and strict TypeScript check pass. Independent review found no important appearance regressions. An earlier development multiplayer run timed out; the subsequent complete eight-test browser run passed, including multiplayer in 24.5 seconds. Production Firebase setup remains pending.
+
 ## Host-control update
 
 Updated checks: **24 pure tests**, **15 Firebase rules tests**, and **7 Chrome browser tests**. Coverage adds shared next-map selection for two independent students, host-only scorecard writes, retained map strokes, New match clearing, blocked/obfuscated names in both UI and database rules, and rejection of stroke deletion/fabricated starting sequence. Practice/lobby cannot be ended as competitive rounds. A concurrent launch/Next-level browser test compares archived strokes and closure timestamp with the server-accepted launch. Host archiving freezes the round using a server timestamp, reads authoritative racer data, then saves scores and advances. Canvas names are filtered in every mode, including existing room records.
