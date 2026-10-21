@@ -1,5 +1,11 @@
 # Verification — October 20, 2026
 
+## October 21: colored aim and harder Summit
+
+Verification:45 pure tests and16 Chrome browser tests passed; full browser suite50.6 seconds. Strict TypeScript/build and independent read-only review passed. Firebase rules and multiplayer payload schema are unchanged.
+
+Shared initial-speed color/block scale verified by unit test and actual Canvas pixel sampling: all three colors at40m/s, green only at5m/s, including a wide Dragon. Removed character-control caption. Summit now790m with8platforms and substantially increased gaps/elevation changes; tests prove every adjacent platform jump is reachable with angle10–80° and speed5–40m/s, and all five complete courses remain finishable under the6m goal rule. TypeScript and build pass.
+
 ## October 21: five-level progression and crowd visibility
 
 Final verification: **42 pure tests, 20 Firebase rules tests, and 14 Chrome browser tests passed (76 total)**. Full browser suite:49.4 seconds. Strict TypeScript, Vite production build, and whitespace checks passed. Independent review rechecked goal proximity, solo-mode isolation, immutable cosmetics, hidden Canvas initialization, input validation, savedmap compatibility, and high-jump minimap bounds. The earlier integration harness waited indefinitely for a launch button when a simultaneous teacherNext action had already disabled it; the test now accepts that valid rejected-launch race and still compares archived strokes with server-accepted records.

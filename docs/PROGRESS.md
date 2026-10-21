@@ -35,3 +35,5 @@ October 21 update: cosmetic width/height 75–135%, actual six-metre landing fin
 Follow-up: translucent terrain/progress map, local-character halo and foreground priority, 25% nearby-rival opacity/65% distant (spectator remains100%), five progressive race courses and five-map scorecard. Numeric savedcourse IDs retained with explicit logicalcourseOrder.35-racer desktop pack and hostmapchanges tested.
 
 Preview restriction: full aiming trajectory only in Training Meadow practice; other course practice and races use direction-only arrows. Solo islands remain preview-free; Classic post-round teacher solution reveal is unchanged.
+
+Aim/level5 update: removed the cosmetic caption from the character controls. Shared speedBlocks now drives the control meter and short on-character aiming indicator; full trajectory remains Training Meadow practice only. Summit Gauntlet redesigned790m,8platforms,24–55m widths,45–91m gaps,heights0–38m and recovery checkpoints. Every consecutive jump and the entire course have validated solutions with permitted settings. No new network fields/writes.
