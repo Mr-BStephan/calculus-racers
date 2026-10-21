@@ -1,5 +1,17 @@
 # Verification — October 20, 2026
 
+## October 21: five-level progression and crowd visibility
+
+Final verification: **42 pure tests, 20 Firebase rules tests, and 14 Chrome browser tests passed (76 total)**. Full browser suite:49.4 seconds. Strict TypeScript, Vite production build, and whitespace checks passed. Independent review rechecked goal proximity, solo-mode isolation, immutable cosmetics, hidden Canvas initialization, input validation, savedmap compatibility, and high-jump minimap bounds. The earlier integration harness waited indefinitely for a launch button when a simultaneous teacherNext action had already disabled it; the test now accepts that valid rejected-launch race and still compares archived strokes with server-accepted records.
+
+Added top-of-arena translucent terrain/marker map, own-racer foreground rendering with a halo, nearby-rival fading, and unchanged full-opacity spectator rendering. Added Rolling Hills and logical level order Meadow → Hills → Canyon → Moon → Summit, while preserving existing numeric map IDs and archived score meanings. Scoreboard and database validation accept five levels. The browser pack fixture contains one signed-in student plus 34 synthetic racers; it verifies map visibility, local player name, five host-selected maps and eight scoreboard columns. This is a desktop browser fixture, not a 35-physical-Chromebook performance measurement. High-jump map marker clamping and saved-ID compatibility have regression tests.
+
+## October 21: shapes, precision goals, and solo islands
+
+Pure tests cover stretch validation, finish proximity versus overrun, all-course reachability under the new finish rule, 300 deterministic solvable islands, true descending island collision, and exactly one shot per island. Rules tests cover immutable bounded stretch and host-only solo-mode selection. Solo-mode launch writes are blocked by server rules. Browser regressions cover actual recolored/stretched pixels, restored proportions, independent classroom solo rounds with no Firebase launch/submission records, blank input rejection, one-shot persistence and new-map retry, successful/missed island shots, and fixed-screen Chromebook bounds. Existing classic mathematical mode remains separately labelled.
+
+Independent review caught and verified fixes for empty numeric settings and hidden Canvas zero dimensions stopping the island animation loop. Screenshot inspection confirms coordinate grid, floating island, landed sprite, restored decimal settings, protractor, power meter, and controls on one screen.
+
 ## Host spawning beta fix
 
 **32 pure tests + 18 rules tests + 9 browser tests passed**, with TypeScript and production build passing. Final full browser run: 43.8 seconds. Independent review caught a closed-joining edge case and admission-listener callback after room deletion; both were fixed and covered. Screenshot verification shows host and student sprites on the course. One development run was interrupted by source/HMR updates; the subsequent stable complete suite passed.

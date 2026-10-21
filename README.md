@@ -1,6 +1,6 @@
 # Calculus Racers v1.0
 
-**Projectile golf with a racing pace.** Adjust the protractor, set speed with the green/yellow/red block meter, launch, land, and launch again. Race cute procedural characters across four courses. One-Shot Calculus Championship is a separate, timed calculation round with one locked shot per racer/team.
+**Projectile golf with a racing pace.** Adjust the protractor, set speed with the green/yellow/red block meter, launch, land, and launch again. Race cute procedural characters across five increasingly demanding courses. Solo Island Championship is a separate fixed-screen, one-shot challenge; the original timed mathematical round remains available as Classic.
 
 Repository: https://github.com/Mr-BStephan/calculus-racers · GitHub Pages target: https://mr-bstephan.github.io/calculus-racers/
 
@@ -23,7 +23,7 @@ Choose from **16 racers** and **12 colors**. Pick a character, then use the **Co
 
 **Playing as the host:** Teacher sign-in opens a spectator dashboard. Share the room code for students to spawn, or choose a nickname/character/color and click **Play as host** to spawn your own racer. Then press **Start practice** or **Start race**. The host retains map and round controls and occupies one of the 40 places when playing. Reloading restores the saved racer, strokes, and joining state.
 
-**Host control and stroke scores:** In a classroom room, only its signed-in teacher host can select maps, start/reset rounds, or advance with **Next level**. Advancing moves every connected racer to the next map’s lobby and waits for the host to start it. **New match / clear scores** returns everyone to Training Meadow and clears the scorecard while preserving membership. The four-map stroke scoreboard shows live strokes, saved attempts, totals and completed-map markers. Unfinished attempts are marked `*`; practice and One-Shot points are excluded from saved stroke totals. Replaying a map replaces its previous saved attempt.
+**Host control and stroke scores:** In a classroom room, only its signed-in teacher host can select maps, start/reset rounds, or advance with **Next level**. Advancing moves every connected racer to the next map’s lobby and waits for the host to start it. **New match / clear scores** returns everyone to Training Meadow and clears the scorecard while preserving membership. The five-map stroke scoreboard shows live strokes, saved attempts, totals and completed-map markers. Unfinished attempts are marked `*`; practice and One-Shot points are excluded from saved stroke totals. Replaying a map replaces its previous saved attempt.
 
 During Training Meadow practice, the host can press **Randomize training flag ⚑**. It chooses a different terrain-grounded target from 40–220 m in 5 m steps, shares it with the entire room, and resets practice positions and stroke counts. Target coordinates appear below the course. The button is available only in the host’s training practice controls. Deploy the updated database rules when configuring Firebase.
 
@@ -32,9 +32,30 @@ During Training Meadow practice, the host can press **Randomize training flag �
 - Drag the protractor’s orange handle to rotate your angle, 5–85°. Click or drag across the growing velocity blocks to set speed, 5–40 m/s. Decimal number fields remain available; arrow keys are optional accessibility controls.
 - Press **LAUNCH**. Wait to land, then take another stroke. Only practice/test rounds offer the full trajectory preview. Regular races show a short direction arrow indicating angle only; One-Shot Championship has no pre-shot trajectory preview. The teacher’s post-round solution reveal remains available.
 - Missing a platform or hitting a wall recovers to the latest checkpoint reached before that stroke. Unlimited strokes prevent soft locks. RESET restarts offline practice.
-- Training Meadow introduces aiming; Canyon Race adds gaps; Moon Dash uses 1.62 m/s²; Championship adds hills and walls. Earth courses use 9.8 m/s². Gravity belongs to the course, never an individual player.
+- Training Meadow introduces aiming; Rolling Hills adds slopes; Canyon Crossing adds gaps and raised shelves; Moon Islands uses floating platforms and 1.62 m/s²; Summit Gauntlet combines hills, walls and gaps. Earth courses use 9.8 m/s². Gravity belongs to the course, never an individual player.
 - Observations show speed, flight time, horizontal distance and peak height above the launch point. No calculation is required in Unit 2.
 - Sound starts muted. Toggle **♪ Off/On**. No external assets, tracking, student logins, emails or real names are required.
+
+## Race visibility and course progression
+
+A translucent course map at the top of the arena shows terrain, racer markers, your progress, the current camera window and the finish. The local marker is drawn last. In player view, rivals near your character fade to 25% opacity (distant rivals 65%); your own racer and name draw last with a halo. Teacher spectator view keeps everyone opaque. These are local drawing changes and use no extra network traffic.
+
+| Level | Course | Main concept |
+|---|---|---|
+| 1 | Training Meadow | Angle/speed basics on gentle ground |
+| 2 | Rolling Hills | Slopes and changing landing height |
+| 3 | Canyon Crossing | Gaps and raised landing shelves |
+| 4 | Moon Islands | Low gravity and long floating-platform jumps |
+| 5 | Summit Gauntlet | Combined hills, walls, gaps and precision |
+
+Saved numeric map IDs retain their original meaning; Hills is appended internally and the UI applies the intended level order. The scoreboard now covers five maps. Refresh all clients when upgrading so the whole room uses the same game version.
+
+## Precision landings, goofy shapes, and solo islands
+
+- **Character width/height:** set each slider to 75–135% before joining (or before Play as host). Selected proportions are shared once with the racer profile and restored on reconnect. They change artwork only: every racer has identical physics and collision geometry.
+- **Finish zone:** land within 6 metres of the flag on the actual terrain. Merely flying past it does not finish. An overshot landing returns to the previous checkpoint for another stroke. The circle around the flag marks the target area.
+- **Solo Island Championship:** use the main entry, or the host’s button to send the class into independent solo challenges. The fixed camera, coordinate grid, start (0, 0), island strip endpoints, and Earth gravity fit with controls on 1366×768 and 1024×768 displays. Each student receives a local random island; no practice shots or trajectory preview. Confirm one shot, watch the countdown, then choose New island after it lands. Refresh retains the current map and used shot in that tab. All island shots and physics stay local, with no Firebase shot writes. The host can return the class to a shared course using Next level or another round control.
+- The original three-point mathematical round remains under **Classic 3-point calculation / Classic 3-point round**. It retains teacher FIRE and post-round solution reveal.
 
 ## Firebase production setup — project administrator
 
@@ -98,7 +119,7 @@ Set `TEST_URL` to test another local server. Browser tests use installed Chrome 
 6. After impacts, view the leaderboard and optionally **Reveal solution**. The equation, derivative, slope, angle, speed and animated ideal path appear. No equation-to-settings conversion is offered to students. A new round generates a different problem and unlocks a fresh single shot.
 7. **27–30 min:** discuss results, end the race, then **Delete room** to remove its data. Removing a racer also bans that anonymous UID for the room. Offline practice remains available through the footer button.
 
-If Firebase is blocked, use **Offline practice / leave room**. The game engine, four courses, widgets, observations, sound and solo championship need no Firebase connection. Existing online races pause new local submissions until connected; delayed server-rejected writes cannot grant another championship attempt. Room data is ephemeral classroom data, not a gradebook.
+If Firebase is blocked, use **Offline practice / leave room**. The game engine, five courses, widgets, observations, sound and solo championship need no Firebase connection. Existing online races pause new local submissions until connected; delayed server-rejected writes cannot grant another championship attempt. Room data is ephemeral classroom data, not a gradebook.
 
 ## One-shot mathematics and scoring
 

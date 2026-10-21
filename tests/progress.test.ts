@@ -1,0 +1,8 @@
+import {it,expect} from 'vitest';
+import {progressRatio,racerOpacity,drawProgressMap} from '../src/progress-map';
+import {courses,raceCourses} from '../src/courses';
+it('has five distinct course concepts in increasing classroom order',()=>{expect(raceCourses.map(c=>c.id)).toEqual(['meadow','hills','canyon','moon','summit']);expect(new Set(courses.map(c=>c.name)).size).toBe(5);expect(raceCourses[3].gravity).toBe(1.62);expect(raceCourses[4].length).toBeGreaterThan(raceCourses[2].length);});
+it('places progress markers safely at start, middle and finish',()=>{expect(progressRatio(-10,100)).toBe(0);expect(progressRatio(50,100)).toBe(.5);expect(progressRatio(130,100)).toBe(1);expect(progressRatio(NaN,100)).toBe(0);});
+it('keeps the local racer prominent while fading nearby rivals only in player view',()=>{expect(racerOpacity(true,false,0)).toBe(1);expect(racerOpacity(false,true,0)).toBe(1);expect(racerOpacity(false,false,10)).toBeLessThan(.4);expect(racerOpacity(false,false,100)).toBeGreaterThan(racerOpacity(false,false,10));});
+it('preserves the meaning of previously saved map indices',()=>{expect(courses.map(c=>c.id)).toEqual(['meadow','canyon','moon','summit','hills']);});
+it('keeps very high and fallen racer markers inside the translucent map',()=>{const arcs:number[][]=[];const context=new Proxy({arc:(...args:number[])=>arcs.push(args)},{get:(target,key)=>key in target?(target as any)[key]:()=>{}}) as unknown as CanvasRenderingContext2D;drawProgressMap(context,800,courses[2],[{id:'a',sprite:0,position:{x:100,y:1000}},{id:'b',sprite:1,position:{x:200,y:-100}}],'a',0,3);expect(arcs).toHaveLength(2);for(const [,y,r]of arcs){expect(y-r).toBeGreaterThanOrEqual(52);expect(y+r).toBeLessThanOrEqual(118);}});
