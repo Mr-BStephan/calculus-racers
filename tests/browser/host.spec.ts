@@ -1,0 +1,23 @@
+import {test,expect} from '@playwright/test';
+test('host can spawn a racer, demonstrate a shot and keep it after reload',async({page,browser})=>{
+ const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.goto('/');await page.locator('#nickname').fill('Comet Fox');
+ await page.locator('#teacher-open').click();await page.locator('#teacher-login').click();
+ await expect(page.locator('#room-code')).toHaveText(/^[A-Z2-9]{6}$/,{timeout:20000});
+ await expect(page.locator('#teacher-note')).toContainText('spectating');
+ await expect(page.locator('#empty-course')).toBeVisible();
+ await expect(page.locator('#launch')).not.toBeVisible();
+ const studentContext=await browser.newContext();const student=await studentContext.newPage();await student.goto('/');await student.locator('#nickname').fill('Beta Fox');await student.locator('#join-open').click();await student.locator('#code').fill((await page.locator('#room-code').textContent())!);await student.locator('#join-submit').click();await expect(student.locator('#join-dialog')).not.toBeVisible();
+ await page.locator('#joining').click();await expect(page.locator('#joining')).toHaveText('Open joining');await page.locator('#host-play').click();
+ await expect(page.locator('#leaderboard li')).toHaveCount(2);
+ await expect(page.locator('#leaderboard')).toContainText('Comet Fox');
+ await expect(page.locator('#empty-course')).not.toBeVisible();
+ await expect(page.locator('#host-play')).not.toBeVisible();
+ await expect(page.locator('#launch')).toBeVisible();await expect(page.locator('#launch')).toBeDisabled();
+ await page.locator('#practice').click();await expect(page.locator('#launch')).toBeEnabled();
+ await page.locator('#launch').click();await expect(page.locator('#launch')).toHaveText('IN FLIGHT…');
+ await expect(page.locator('#strokes')).toHaveText('1');await expect(page.locator('#launch')).toBeEnabled({timeout:12000});
+ await expect(student.locator('#leaderboard')).toContainText('Comet Fox');
+ await page.reload();await expect(page.locator('#leaderboard')).toContainText('Comet Fox');
+ await expect(page.locator('#strokes')).toHaveText('1');await expect(page.locator('#launch')).toBeVisible();await expect(page.locator('#nickname')).toHaveValue('Comet Fox');await expect(page.locator('#joining')).toHaveText('Open joining');
+ await page.screenshot({path:'test-results/host-playing.png',fullPage:true});await page.locator('#destroy-room').click();await expect(page.locator('#connection')).toContainText('OFFLINE PRACTICE');expect(errors).toEqual([]);await studentContext.close();
+});

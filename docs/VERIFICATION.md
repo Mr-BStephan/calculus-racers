@@ -1,5 +1,13 @@
 # Verification — October 20, 2026
 
+## Host spawning beta fix
+
+**32 pure tests + 18 rules tests + 9 browser tests passed**, with TypeScript and production build passing. Final full browser run: 43.8 seconds. Independent review caught a closed-joining edge case and admission-listener callback after room deletion; both were fixed and covered. Screenshot verification shows host and student sprites on the course. One development run was interrupted by source/HMR updates; the subsequent stable complete suite passed.
+
+Root cause: teacher sign-in opened a spectator-only room and never created a host racer; an empty room had no explicit waiting guidance. Added Play as host, an empty-course message and clear spectator/playing instructions. Playing hosts claim a regular free slot and use the same launch/submission rules as students; occupied slots cannot be overwritten. Host camera follows their racer while spectator camera continues to track the pack. Refresh restores nickname and actual admission state.
+
+Regression coverage includes host spawning with student admission closed, a second independent student seeing the host racer, host launch/landing, retained racer/strokes/nickname on reload, and host-only room controls. Rules tests verify host slot collision rejection and self launch. Existing production teacher login and allowlist were observed through project state; interactive Google popup remains a human flow.
+
 ## Production Firebase connection
 
 The hosted site is now connected to the calculus-racers Spark project through the GitHub Actions public configuration variable. The checked-in restricted database rules were deployed successfully. Admin readback confirms Anonymous and Google sign-in are enabled and mr-bstephan.github.io is authorized. Pages deployment succeeded.
