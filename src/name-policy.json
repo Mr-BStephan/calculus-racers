@@ -1,0 +1,5 @@
+{
+  "blockedFragments": ["fuck", "shit", "bitch", "cunt", "dick", "cock", "pussy", "nigger", "nigga", "faggot", "retard", "whore", "slut", "porn", "sex", "rape", "nazi", "hitler", "killyourself", "kys"],
+  "blockedWords": ["ass", "fag", "kkk", "admin", "teacher", "host"],
+  "substitutions": {"a":"[a4]", "b":"[b8]", "e":"[e3]", "g":"[g69]", "i":"[i1l]", "l":"[l1i]", "o":"[o0]", "s":"[s5]", "t":"[t7]", "u":"[uv]"}
+}

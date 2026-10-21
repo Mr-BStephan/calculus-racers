@@ -19,6 +19,10 @@ Practice runs without internet once the production app has loaded and cached suc
 
 ## Playing
 
+**Host control and stroke scores:** In a classroom room, only its signed-in teacher host can select maps, start/reset rounds, or advance with **Next level**. Advancing moves every connected racer to the next map’s lobby and waits for the host to start it. **New match / clear scores** returns everyone to Training Meadow and clears the scorecard while preserving membership. The four-map stroke scoreboard shows live strokes, saved attempts, totals and completed-map markers. Unfinished attempts are marked `*`; practice and One-Shot points are excluded from saved stroke totals. Replaying a map replaces its previous saved attempt.
+
+**Nickname blocker:** Names are checked before joining and again in Firebase rules. The shared policy blocks common profanity, slurs, abusive/sexual phrases, spacing tricks and basic number substitutions. Invalid names display as “Racer” locally instead of appearing on the course. Automated filtering can miss creative evasion and may reject a harmless name; the host’s Remove button remains available. Update `src/name-policy.json`, run `pnpm rules:names`, test, and deploy the updated database rules whenever changing the policy. Existing Firebase projects must redeploy `database.rules.json` to enable this update’s server checks and scorecard permissions.
+
 - Drag the protractor’s orange handle to rotate your angle, 5–85°. Click or drag across the growing velocity blocks to set speed, 5–40 m/s. Decimal number fields remain available; arrow keys are optional accessibility controls.
 - Press **LAUNCH**. Wait to land, then take another stroke. The short pre-shot direction arrow indicates angle only. It never predicts the full trajectory or landing.
 - Missing a platform or hitting a wall recovers to the latest checkpoint reached before that stroke. Unlimited strokes prevent soft locks. RESET restarts offline practice.

@@ -1,5 +1,11 @@
 # Verification — October 20, 2026
 
+## Host-control update
+
+Updated checks: **24 pure tests**, **15 Firebase rules tests**, and **7 Chrome browser tests**. Coverage adds shared next-map selection for two independent students, host-only scorecard writes, retained map strokes, New match clearing, blocked/obfuscated names in both UI and database rules, and rejection of stroke deletion/fabricated starting sequence. Practice/lobby cannot be ended as competitive rounds. A concurrent launch/Next-level browser test compares archived strokes and closure timestamp with the server-accepted launch. Host archiving freezes the round using a server timestamp, reads authoritative racer data, then saves scores and advances. Canvas names are filtered in every mode, including existing room records.
+
+Production database configuration is still not supplied. Updated Firebase rules must be deployed as part of that setup; GitHub Pages deployment does not deploy database rules.
+
 Local branch: `feat/calculus-racers-v1`. This is a separate Git repository in `School/calculus-racers`, with no grading data or connection to Classroom/Rallyborn.
 
 ## Verified

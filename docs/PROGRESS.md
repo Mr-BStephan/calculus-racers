@@ -1,5 +1,7 @@
 # Implementation ledger — PLAN.md
 
+Host update: explicit Next level / New match controls; shared per-map stroke scoreboard and totals; client and rule-enforced nickname filter. New tests: 24 pure, 15 rules, 7 browser. Review fixes prevent practice contamination, sanitize all Canvas names, and freeze rounds with server timestamps before fetching and archiving accepted strokes. See HOST_UPDATE.md and VERIFICATION.md.
+
 Ruling: proceed inline using the supplied handoff, per explicit instruction to implement without stopping at planning.
 Ruling: use a new nested Git repository rather than a worktree of School; the game must be independent and contain no grading records.
 Ruling: no Sites hosting; the user's GitHub Pages + Firebase target takes precedence.

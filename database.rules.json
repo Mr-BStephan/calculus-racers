@@ -94,19 +94,19 @@
             ".write": "(auth != null && root.child('admission').child($code).child('owner').val() === auth.uid) && !newData.exists() || ((auth != null && auth.uid === $uid && (auth != null && root.child('rooms').child($code).child('members').child(auth.uid).exists() && !root.child('rooms').child($code).child('bans').child(auth.uid).exists()) && (root.child('admission').child($code).child('expires').val() > now)) && !data.exists() && newData.hasChildren(['name','sprite']) && !newData.hasChild('launch'))",
             ".validate": "newData.hasChildren(['name','sprite'])",
             "name": {
-              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 18 && newData.val().matches(/^[a-zA-Z0-9 _-]+$/) && (!data.exists() || newData.val() === data.val())"
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 18 && newData.val().matches(/^[a-zA-Z0-9 _-]+$/) && newData.val().matches(/.*[a-zA-Z0-9].*/) && !newData.val().toLowerCase().matches(/.*(f[ _-]*[uv][ _-]*c[ _-]*k|[s5][ _-]*h[ _-]*[i1l][ _-]*[t7]|[b8][ _-]*[i1l][ _-]*[t7][ _-]*c[ _-]*h|c[ _-]*[uv][ _-]*n[ _-]*[t7]|d[ _-]*[i1l][ _-]*c[ _-]*k|c[ _-]*[o0][ _-]*c[ _-]*k|p[ _-]*[uv][ _-]*[s5][ _-]*[s5][ _-]*y|n[ _-]*[i1l][ _-]*[g69][ _-]*[g69][ _-]*[e3][ _-]*r|n[ _-]*[i1l][ _-]*[g69][ _-]*[g69][ _-]*[a4]|f[ _-]*[a4][ _-]*[g69][ _-]*[g69][ _-]*[o0][ _-]*[t7]|r[ _-]*[e3][ _-]*[t7][ _-]*[a4][ _-]*r[ _-]*d|w[ _-]*h[ _-]*[o0][ _-]*r[ _-]*[e3]|[s5][ _-]*[l1i][ _-]*[uv][ _-]*[t7]|p[ _-]*[o0][ _-]*r[ _-]*n|[s5][ _-]*[e3][ _-]*x|r[ _-]*[a4][ _-]*p[ _-]*[e3]|n[ _-]*[a4][ _-]*z[ _-]*[i1l]|h[ _-]*[i1l][ _-]*[t7][ _-]*[l1i][ _-]*[e3][ _-]*r|k[ _-]*[i1l][ _-]*[l1i][ _-]*[l1i][ _-]*y[ _-]*[o0][ _-]*[uv][ _-]*r[ _-]*[s5][ _-]*[e3][ _-]*[l1i][ _-]*f|k[ _-]*y[ _-]*[s5]).*/) && !newData.val().toLowerCase().matches(/^([a4][ _-]*[s5][ _-]*[s5]|f[ _-]*[a4][ _-]*[g69]|k[ _-]*k[ _-]*k|[a4][ _-]*d[ _-]*m[ _-]*[i1l][ _-]*n|[t7][ _-]*[e3][ _-]*[a4][ _-]*c[ _-]*h[ _-]*[e3][ _-]*r|h[ _-]*[o0][ _-]*[s5][ _-]*[t7])$/) && !newData.val().toLowerCase().matches(/^([a4][ _-]*[s5][ _-]*[s5]|f[ _-]*[a4][ _-]*[g69]|k[ _-]*k[ _-]*k|[a4][ _-]*d[ _-]*m[ _-]*[i1l][ _-]*n|[t7][ _-]*[e3][ _-]*[a4][ _-]*c[ _-]*h[ _-]*[e3][ _-]*r|h[ _-]*[o0][ _-]*[s5][ _-]*[t7])[ _-].*/) && !newData.val().toLowerCase().matches(/.*[ _-]([a4][ _-]*[s5][ _-]*[s5]|f[ _-]*[a4][ _-]*[g69]|k[ _-]*k[ _-]*k|[a4][ _-]*d[ _-]*m[ _-]*[i1l][ _-]*n|[t7][ _-]*[e3][ _-]*[a4][ _-]*c[ _-]*h[ _-]*[e3][ _-]*r|h[ _-]*[o0][ _-]*[s5][ _-]*[t7])$/) && !newData.val().toLowerCase().matches(/.*[ _-]([a4][ _-]*[s5][ _-]*[s5]|f[ _-]*[a4][ _-]*[g69]|k[ _-]*k[ _-]*k|[a4][ _-]*d[ _-]*m[ _-]*[i1l][ _-]*n|[t7][ _-]*[e3][ _-]*[a4][ _-]*c[ _-]*h[ _-]*[e3][ _-]*r|h[ _-]*[o0][ _-]*[s5][ _-]*[t7])[ _-].*/) && (!data.exists() || newData.val() === data.val())"
             },
             "sprite": {
               ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 7 && newData.val() % 1 === 0 && (!data.exists() || newData.val() === data.val())"
             },
             "launch": {
-              ".write": "(auth != null && auth.uid === $uid && (auth != null && root.child('rooms').child($code).child('members').child(auth.uid).exists() && !root.child('rooms').child($code).child('bans').child(auth.uid).exists()) && (root.child('admission').child($code).child('expires').val() > now)) && root.child('rooms').child($code).child('racers').child($uid).hasChild('name') && (root.child('rooms').child($code).child('control').child('phase').val() === 'practice' || root.child('rooms').child($code).child('control').child('phase').val() === 'race') && now >= root.child('rooms').child($code).child('control').child('startsAt').val() && (!data.exists() || data.child('epoch').val() !== newData.child('epoch').val() || now >= data.child('at').val() + 750)",
+              ".write": "(auth != null && auth.uid === $uid && (auth != null && root.child('rooms').child($code).child('members').child(auth.uid).exists() && !root.child('rooms').child($code).child('bans').child(auth.uid).exists()) && (root.child('admission').child($code).child('expires').val() > now)) && root.child('rooms').child($code).child('racers').child($uid).hasChild('name') && (root.child('rooms').child($code).child('control').child('phase').val() === 'practice' || root.child('rooms').child($code).child('control').child('phase').val() === 'race') && now >= root.child('rooms').child($code).child('control').child('startsAt').val() && (!data.exists() || data.child('epoch').val() !== newData.child('epoch').val() || now >= data.child('at').val() + 750) && newData.exists()",
               ".validate": "newData.hasChildren(['epoch','seq','x','y','angle','power','at'])",
               "epoch": {
                 ".validate": "newData.isNumber() && newData.val() === root.child('rooms').child($code).child('control').child('epoch').val()"
               },
               "seq": {
-                ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 10000 && newData.val() % 1 === 0 && (!data.exists() || data.parent().child('epoch').val() !== newData.parent().child('epoch').val() || newData.val() === data.val() + 1)"
+                ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 10000 && newData.val() % 1 === 0 && ((!data.exists() || data.parent().child('epoch').val() !== newData.parent().child('epoch').val()) ? newData.val() === 1 : newData.val() === data.val() + 1)"
               },
               "x": {
                 ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1200"
@@ -165,6 +165,36 @@
             ".validate": "$slot.matches(/^(0|[1-9]|[12][0-9]|3[0-9])$/) && newData.isString() && newData.parent().parent().child('members').child(newData.val()).val() === $slot"
           },
           ".read": "(root.child('admission').child($code).child('expires').val() > now) && ((auth != null && root.child('admission').child($code).child('owner').val() === auth.uid) || (auth != null && root.child('rooms').child($code).child('members').child(auth.uid).exists() && !root.child('rooms').child($code).child('bans').child(auth.uid).exists()))"
+        },
+        "scorecard": {
+          ".write": "auth != null && root.child('admission').child($code).child('owner').val() === auth.uid",
+          ".read": "(root.child('admission').child($code).child('expires').val() > now) && ((auth != null && root.child('admission').child($code).child('owner').val() === auth.uid) || (auth != null && root.child('rooms').child($code).child('members').child(auth.uid).exists() && !root.child('rooms').child($code).child('bans').child(auth.uid).exists()))",
+          "$course": {
+            ".validate": "$course.matches(/^[0-3]$/) && newData.hasChildren(['epoch','results'])",
+            "epoch": {
+              ".validate": "newData.isNumber() && newData.val() >= 1 && newData.val() <= 10000000000000"
+            },
+            "results": {
+              "$uid": {
+                ".validate": "newData.hasChildren(['strokes','finished'])",
+                "strokes": {
+                  ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000 && newData.val() % 1 === 0"
+                },
+                "finished": {
+                  ".validate": "newData.isBoolean()"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              }
+            },
+            "$other": {
+              ".validate": false
+            },
+            "closedAt": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000000000"
+            }
+          }
         }
       }
     }
