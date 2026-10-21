@@ -1,6 +1,6 @@
 # Calculus Racers v1.0
 
-**Projectile golf with a racing pace.** Adjust the protractor, set speed with the green/yellow/red block meter, launch, land, and launch again. Race cute procedural characters across five increasingly demanding courses. Solo Island Championship is a separate fixed-screen, one-shot challenge; the original timed mathematical round remains available as Classic.
+**Projectile golf with a racing pace.** Adjust the protractor, set speed with the green/yellow/red block meter, launch, land, and launch again. Race cute procedural characters across five increasingly demanding courses. Classroom Island Championship is a separate host-controlled, fixed-screen, one-shot challenge; the original timed mathematical round remains available as Classic.
 
 Repository: https://github.com/Mr-BStephan/calculus-racers · GitHub Pages target: https://mr-bstephan.github.io/calculus-racers/
 
@@ -19,7 +19,7 @@ Practice runs without internet once the production app has loaded and cached suc
 
 ## Playing
 
-Choose from **16 racers** and **12 colors**. Pick a character, then use the **Color** swatches below it; the avatar and course sprite recolor immediately without changing the character’s shape or physics. Picker thumbnails use the same procedural art as the game. Added characters: Raccoon, Owl, Axolotl, Turtle, Dragon, Robot, Octopus and Unicorn. Choose appearance before joining a classroom; the selected combination is stored with the racer and restored on reload. Existing racers without a color field retain their original species color. Deploy the updated `database.rules.json` when configuring multiplayer to support the new sprite/color ranges.
+Choose from **16 racers** and **12 colors**. Pick a character, then use the **Color** swatches below it; the avatar and course sprite recolor immediately without changing the character’s shape or physics. Picker thumbnails use the same procedural art as the game. Added characters: Raccoon, Owl, Axolotl, Turtle, Dragon, Robot, Octopus and Unicorn. Players may change their own character and color while joining is open. Closing joining locks these choices, enforced by rules. Appearance is stored with the racer and restored on reload. Width and height remain locked after joining. Existing racers without a color field retain their original species color. Deploy the updated `database.rules.json` when configuring multiplayer to support the new sprite/color ranges.
 
 **Playing as the host:** Teacher sign-in opens a spectator dashboard. Share the room code for students to spawn, or choose a nickname/character/color and click **Play as host** to spawn your own racer. Then press **Start practice** or **Start race**. The host retains map and round controls and occupies one of the 40 places when playing. Reloading restores the saved racer, strokes, and joining state.
 
@@ -50,11 +50,11 @@ A translucent course map at the top of the arena shows terrain, racer markers, y
 
 Saved numeric map IDs retain their original meaning; Hills is appended internally and the UI applies the intended level order. The scoreboard now covers five maps. Refresh all clients when upgrading so the whole room uses the same game version.
 
-## Precision landings, goofy shapes, and solo islands
+## Precision landings, character shapes, and hosted islands
 
 - **Character width/height:** set each slider to 75–135% before joining (or before Play as host). Selected proportions are shared once with the racer profile and restored on reconnect. They change artwork only: every racer has identical physics and collision geometry.
 - **Finish zone:** land within 6 metres of the flag on the actual terrain. Merely flying past it does not finish. An overshot landing returns to the previous checkpoint for another stroke. The circle around the flag marks the target area.
-- **Solo Island Championship:** use the main entry, or the host’s button to send the class into independent solo challenges. The fixed camera, coordinate grid, start (0, 0), island strip endpoints, and Earth gravity fit with controls on 1366×768 and 1024×768 displays. Each student receives a local random island; no practice shots or trajectory preview. Confirm one shot, watch the countdown, then choose New island after it lands. Refresh retains the current map and used shot in that tab. All island shots and physics stay local, with no Firebase shot writes. The host can return the class to a shared course using Next level or another round control.
+- **Classroom Island Championship:** only the teacher can open Championship or start a new island for everyone. Every racer gets an individual deterministic island derived from the host round and anonymous identity. Fixed camera, grid, start (0,0), island coordinates, and Earth gravity fit Chromebook screens. No practice shots or trajectory preview. Confirm one shot, then watch a three-second countdown. Settings and a server timestamp are saved once; physics and outcome are computed locally from host conditions. Reconnecting restores the exact map and used shot. A bottom score sheet records Success, Fail, In flight, or No shot for up to 20 host rounds. Students cannot retry or start Championship offline.
 - The original three-point mathematical round remains under **Classic 3-point calculation / Classic 3-point round**. It retains teacher FIRE and post-round solution reveal.
 
 ## Firebase production setup — project administrator
@@ -119,7 +119,7 @@ Set `TEST_URL` to test another local server. Browser tests use installed Chrome 
 6. After impacts, view the leaderboard and optionally **Reveal solution**. The equation, derivative, slope, angle, speed and animated ideal path appear. No equation-to-settings conversion is offered to students. A new round generates a different problem and unlocks a fresh single shot.
 7. **27–30 min:** discuss results, end the race, then **Delete room** to remove its data. Removing a racer also bans that anonymous UID for the room. Offline practice remains available through the footer button.
 
-If Firebase is blocked, use **Offline practice / leave room**. The game engine, five courses, widgets, observations, sound and solo championship need no Firebase connection. Existing online races pause new local submissions until connected; delayed server-rejected writes cannot grant another championship attempt. Room data is ephemeral classroom data, not a gradebook.
+If Firebase is blocked, use **Offline practice / leave room**. The game engine, five courses, widgets, observations, and sound need no Firebase connection. Championship requires a host room. Existing online races pause new local submissions until connected; delayed server-rejected writes cannot grant another championship attempt. Room data is ephemeral classroom data, not a gradebook.
 
 ## One-shot mathematics and scoring
 
@@ -166,7 +166,7 @@ See [docs/VERIFICATION.md](docs/VERIFICATION.md) for measured results and produc
 
 - Friendly racing, not cheat-proof esports: rules cannot recompute regular-course terrain collisions or prove a submitted launch origin came from the previous landing. A modified client can forge its own ordinary race progress within numeric bounds. It cannot edit someone else’s record or teacher-owned conditions.
 - One-shot scoring derives from authoritative mission conditions and immutable settings, but result display still executes frontend code. Verified rankings, tamper-proof timing, globally enforceable rate limiting, automatic expired-room deletion and bans that survive anonymous identity cycling require a trusted backend.
-- Stale presence is removed automatically. Historical room records and slots persist until the owner deletes the room. Expiration revokes access but is not automatic deletion. No cross-session championship history or personal information is stored intentionally.
+- Stale presence is removed automatically. Historical room records and slots persist until the owner deletes the room. Expiration revokes access but is not automatic deletion. The latest 20 island rounds are retained in the room. Private extra-credit records deliberately persist separately for the teacher across room deletion; manage retention through the Firebase console after exporting.
 - JavaScript floating-point calculations are deterministic within normal browser precision, not cross-platform bit-exact fixed-point arithmetic. Server timestamps synchronize event time; their clock-offset estimates are not tournament-grade latency compensation.
 - No 35-device physical Chromebook load test or school-network pilot has been completed. Browser automation checks layout, not device frame rate.
 
@@ -176,6 +176,16 @@ Run a real-classroom pilot and profile 35 devices first. Add touch-target refine
 
 ### Downhill settling and the 35 m/s cap
 
-After a safe slope landing, racers roll downhill along connected terrain edges until a flat base or local valley, then may shoot again. Airborne motion retains the ideal projectile equations. Ground settling is an arcade model: acceleration is gravity along the slope, ground speed caps at 8 m/s, and flat ground stops the racer without uphill coasting. It uses exact segment times and the same launch event on every client, including late joins and reconnects. Flight observations exclude rolling time and distance. Goals score at the final settled position. Training flag randomization chooses flat terrain so the goal stays reachable. Saved slope targets from older rooms normalize to the downhill flat consistently on all clients.
+After a safe slope landing, racers roll downhill along connected terrain edges until a flat base or local valley, then may shoot again. Airborne motion retains the ideal projectile equations. Ground settling is an arcade model: downhill acceleration is 9× its gravity component and ground speed caps at 24 m/s, giving three-times-faster settling, and flat ground stops the racer without uphill coasting. It uses exact segment times and the same launch event on every client, including late joins and reconnects. Flight observations exclude rolling time and distance. Goals score at the final settled position. Training flag randomization chooses flat terrain so the goal stays reachable. Saved slope targets from older rooms normalize to the downhill flat consistently on all clients.
 
 All speed controls and Firebase launch/submission validation cap speed at 35 m/s. Level 5 alternates shorter precision jumps and near-cap leaps; its stable course ID is unchanged. Solo Championship islands were narrowed to keep all generated solutions inside the new cap. Refresh every device and reset existing rounds after updating, so all racers use the same physics/layout. Legacy race events above the cap safely return to the starting checkpoint.
+
+### Private extra credit and later Classroom use
+
+After a successful Island Championship shot, the signed-in host reads the accepted shot from Firebase and recomputes its outcome from the host round and the student's anonymous ID. Only the protected teacher identity can create an eligibility record. Pending claims stay available when the host advances before touchdown, starts another island, or moves back to a race; reconnects restore them while the retained round history is available. Eligible students then receive a private full-name/period form (periods 1–8). Each successful round permits one immutable form submission. A failed shot, fabricated score, offline simulation, or direct student eligibility write cannot earn credit through these rules. Keep the host dashboard open for verification; returning hosts can verify stored successful rounds.
+
+Names and periods are stored only under `/teacherCredits/{teacherUid}/{room}/{round}/{studentUid}`; peers cannot read them. Public score sheets use racer nicknames. These records contain the course seed, accepted angle/speed and eligibility timestamp as evidence, plus the student's submitted name/period. They survive room deletion so the teacher can create a new room, sign in, and choose **Export extra credit CSV**. Export combines repeat successes by normalized name/period into **one point per student**, with successful-round counts for review. Different students with the same name/period require manual reconciliation. Student-entered names are claims, not verified roster identities.
+
+The CSV is a teacher review record, not a grade upload. Match claims to the current roster and student IDs before any later Classroom work. This game has no Classroom API connection and does not modify grades. Keep exports private; do not commit them. Delete retained records through the Firebase console after school retention needs are satisfied. Frontend code can be inspected to calculate a solution; host control and verified outcomes prevent fabricated offline awards, not automated solving or identity impersonation.
+
+Race score cells now retain the finish place and elapsed race time (including downhill settling) beside strokes. Archived results preserve the ranks even when the host advances maps.

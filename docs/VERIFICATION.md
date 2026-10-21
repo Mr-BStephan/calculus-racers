@@ -1,4 +1,15 @@
-# Verification — October 20, 2026
+# Verification — October 21, 2026
+
+## Host-controlled Championship and private extra credit
+
+**59 core tests + 25 Firebase rules tests + 19 Chrome browser tests passed (103 total)**. Full browser suite: about 1.4 minutes. Strict TypeScript, Vite production build and whitespace checks passed. Read-only independent review found and verified fixes for reconnect capability initialization, early-round completion/eligibility timing, claims across map advancement, CSV formula injection through whitespace, and host clearing of public history.
+
+Browser coverage includes two independent student identities and a protected teacher: changing character/color with admission open, locking choices when closed, host-only island advancement, immutable one-shot events, derived success/fail sheets, no offline Championship entry, successful/failed island collisions, private eligible-only name/period forms, claims after refresh and host advancement before touchdown, private CSV export, and race controls/archival. Tests use explicitly synthetic identities. Rules deny student eligibility creation and peer identity reads, validate claims, preserve teacher access after room deletion, and reject new student rounds, repeated shots, fabricated outcome fields, invalid appearance edits and launch numbers.
+
+Credit CSV combines repeat successes into one point per normalized name/period, preserving counts for review and neutralizing spreadsheet formulas. It is not a Classroom grade upload; roster/identity reconciliation remains necessary. Interactive production Google popup is not automated. A live Firebase fixture checks independently authenticated students and cleans its test records; trusted host verification is covered with the protected emulator teacher.
+
+Earlier sections below describe prior versions and are historical evidence, not the current behavior.
+
 
 ## October 21: colored aim and harder Summit
 

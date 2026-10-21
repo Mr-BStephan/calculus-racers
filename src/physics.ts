@@ -34,9 +34,9 @@ export function simulate(c:Course,p:Point,angle:number,power:number):Flight{
  return f;
 }
 
-// Arcade settling: gravity along each slope, capped at 8 m/s. Flat ground and
+// Arcade settling: 9× downhill acceleration, capped at 24 m/s. Flat ground and
 // local valleys stop motion; no momentum carries a racer up the next hill.
-const ROLL_CAP=8;
+const ROLL_CAP=24;
 function rollDistance(speed:number,a:number,t:number){const accelerating=Math.min(t,(ROLL_CAP-speed)/a);return speed*accelerating+a*accelerating*accelerating/2+ROLL_CAP*(t-accelerating);}
 function downhill(poly:Point[],edge:number,start:Point,gravity:number):RollSegment[]{
  const segments:RollSegment[]=[];let position=start,speed=0;
@@ -46,7 +46,7 @@ function downhill(poly:Point[],edge:number,start:Point,gravity:number):RollSegme
   const direction=b.y<a.y?1:-1,end=direction===1?b:a;
   if(end.y>position.y+1e-8)break;
   const length=Math.hypot(end.x-position.x,end.y-position.y);
-  if(length>1e-8){const acceleration=gravity*Math.abs(b.y-a.y)/Math.hypot(b.x-a.x,b.y-a.y),toCap=(ROLL_CAP-speed)/acceleration,capDistance=speed*toCap+acceleration*toCap*toCap/2,duration=length<=capDistance?2*length/(Math.sqrt(speed*speed+2*acceleration*length)+speed):toCap+(length-capDistance)/ROLL_CAP;segments.push({start:position,end,duration,speed,acceleration});speed=Math.min(ROLL_CAP,speed+acceleration*duration);}
+  if(length>1e-8){const acceleration=9*gravity*Math.abs(b.y-a.y)/Math.hypot(b.x-a.x,b.y-a.y),toCap=(ROLL_CAP-speed)/acceleration,capDistance=speed*toCap+acceleration*toCap*toCap/2,duration=length<=capDistance?2*length/(Math.sqrt(speed*speed+2*acceleration*length)+speed):toCap+(length-capDistance)/ROLL_CAP;segments.push({start:position,end,duration,speed,acceleration});speed=Math.min(ROLL_CAP,speed+acceleration*duration);}
   position=end;const next=(edge+direction+poly.length)%poly.length,na=poly[next],nb=poly[(next+1)%poly.length],destination=direction===1?nb:na;
   if(nb.x<=na.x||destination.y>=position.y-1e-8)break;
   edge=next;
