@@ -124,7 +124,7 @@
                 ".validate": "newData.isNumber() && newData.val() >= 5 && newData.val() <= 85"
               },
               "power": {
-                ".validate": "newData.isNumber() && newData.val() >= 5 && newData.val() <= 40"
+                ".validate": "newData.isNumber() && newData.val() >= 5 && newData.val() <= 35"
               },
               "at": {
                 ".validate": "newData.isNumber() && newData.val() === now"
@@ -159,7 +159,7 @@
               ".validate": "newData.isNumber() && newData.val() >= 5 && newData.val() <= 85"
             },
             "power": {
-              ".validate": "newData.isNumber() && newData.val() >= 5 && newData.val() <= 40"
+              ".validate": "newData.isNumber() && newData.val() >= 5 && newData.val() <= 35"
             },
             "at": {
               ".validate": "newData.isNumber() && newData.val() === now"

@@ -25,14 +25,14 @@ Choose from **16 racers** and **12 colors**. Pick a character, then use the **Co
 
 **Host control and stroke scores:** In a classroom room, only its signed-in teacher host can select maps, start/reset rounds, or advance with **Next level**. Advancing moves every connected racer to the next map’s lobby and waits for the host to start it. **New match / clear scores** returns everyone to Training Meadow and clears the scorecard while preserving membership. The five-map stroke scoreboard shows live strokes, saved attempts, totals and completed-map markers. Unfinished attempts are marked `*`; practice and One-Shot points are excluded from saved stroke totals. Replaying a map replaces its previous saved attempt.
 
-During Training Meadow practice, the host can press **Randomize training flag ⚑**. It chooses a different terrain-grounded target from 40–220 m in 5 m steps, shares it with the entire room, and resets practice positions and stroke counts. Target coordinates appear below the course. The button is available only in the host’s training practice controls. Deploy the updated database rules when configuring Firebase.
+During Training Meadow practice, the host can press **Randomize training flag ⚑**. It chooses a different terrain-grounded target on flat terrain from 40–220 m in 5 m steps, shares it with the entire room, and resets practice positions and stroke counts. Target coordinates appear below the course. The button is available only in the host’s training practice controls. Deploy the updated database rules when configuring Firebase.
 
 **Nickname blocker:** Names are checked before joining and again in Firebase rules. The shared policy blocks common profanity, slurs, abusive/sexual phrases, spacing tricks and basic number substitutions. Invalid names display as “Racer” locally instead of appearing on the course. Automated filtering can miss creative evasion and may reject a harmless name; the host’s Remove button remains available. Update `src/name-policy.json`, run `pnpm rules:names`, test, and deploy the updated database rules whenever changing the policy. Existing Firebase projects must redeploy `database.rules.json` to enable this update’s server checks and scorecard permissions.
 
-- Drag the protractor’s orange handle to rotate your angle, 5–85°. Click or drag across the growing velocity blocks to set speed, 5–40 m/s. Decimal number fields remain available; arrow keys are optional accessibility controls.
+- Drag the protractor’s orange handle to rotate your angle, 5–85°. Click or drag across the growing velocity blocks to set speed, 5–35 m/s. Decimal number fields remain available; arrow keys are optional accessibility controls.
 - Press **LAUNCH**. Wait to land, then take another stroke. Only Training Meadow practice offers the full trajectory preview. Later courses and regular races show a short aim indicator: its angle follows the protractor, and its growing green/yellow/red blocks match the initial-speed meter. This is a screen-sized indicator, not a predicted range or full flight path; One-Shot Championship has no pre-shot trajectory preview. The teacher’s post-round solution reveal remains available.
 - Missing a platform or hitting a wall recovers to the latest checkpoint reached before that stroke. Unlimited strokes prevent soft locks. RESET restarts offline practice.
-- Training Meadow introduces aiming; Rolling Hills adds slopes; Canyon Crossing adds gaps and raised shelves; Moon Islands uses floating platforms and 1.62 m/s²; Summit Gauntlet spans 790 m with eight platforms, narrow landing strips, substantial height changes and 45–91 m gaps. Earth courses use 9.8 m/s². Gravity belongs to the course, never an individual player.
+- Training Meadow introduces aiming; Rolling Hills adds slopes; Canyon Crossing adds gaps and raised shelves; Moon Islands uses floating platforms and 1.62 m/s²; Summit Gauntlet spans 610 m with eight platforms, narrow landing strips, substantial height changes and mixed 22–102 m gaps. Earth courses use 9.8 m/s². Gravity belongs to the course, never an individual player.
 - Observations show speed, flight time, horizontal distance and peak height above the launch point. No calculation is required in Unit 2.
 - Sound starts muted. Toggle **♪ Off/On**. No external assets, tracking, student logins, emails or real names are required.
 
@@ -46,7 +46,7 @@ A translucent course map at the top of the arena shows terrain, racer markers, y
 | 2 | Rolling Hills | Slopes and changing landing height |
 | 3 | Canyon Crossing | Gaps and raised landing shelves |
 | 4 | Moon Islands | Low gravity and long floating-platform jumps |
-| 5 | Summit Gauntlet | Narrow islands, large height changes, 45–91 m gaps |
+| 5 | Summit Gauntlet | Narrow islands, large height changes, mixed short and long gaps |
 
 Saved numeric map IDs retain their original meaning; Hills is appended internally and the UI applies the intended level order. The scoreboard now covers five maps. Refresh all clients when upgrading so the whole room uses the same game version.
 
@@ -143,7 +143,7 @@ Scores are computed by every client, including the teacher, from the teacher-own
 
 Physics uses meters and seconds, upward-positive y, ideal ballistic equations and a 1/120 s time grid. Exact line-segment/ballistic intersections resolve the first contact within that grid, so thin walls and sloping ground cannot be tunneled through. Collision body is the racer’s **foot point**; art has no physical radius. A safe top surface permits landing; walls and missed terrain recover to checkpoints. Render frames sample the exact flight rather than integrating a different physics result on each Chromebook.
 
-Network data is bounded: one identity, one current launch and one current championship submission per racer, plus room controls, 40 admission slots and presence. No per-frame position updates or growing launch history. A launch stores epoch, sequence, origin, angle/speed and a server timestamp. All clients derive flight and rest positions. Server clock offset compensates local clock skew. Reconnect replays the current launch to the appropriate position; race resets invalidate stale epochs. Expired rooms refuse student access after six hours.
+Network data is bounded: one identity, one current launch and one current championship submission per racer, plus room controls, 40 admission slots and presence. No per-frame position updates or growing launch history. A launch stores epoch, sequence, origin, angle/speed and a server timestamp. All clients derive flight, downhill rolling, and settled positions. Rolling sends no additional events or position updates. Server clock offset compensates local clock skew. Reconnect replays the current launch to the appropriate position; race resets invalidate stale epochs. Expired rooms refuse student access after six hours.
 
 Rules deny root listing, gate room data by membership, enforce racer ownership and numeric ranges, prevent student race controls, cap admission through 40 unique atomic slots, and enforce at least 750 ms between ordinary launch writes. Student championship submissions are immutable per epoch, allowed only during the calculation window, and private from peers until FIRE. `onDisconnect` removes stale presence. Slots deliberately survive disconnects so interrupted students can rejoin.
 
@@ -173,3 +173,9 @@ See [docs/VERIFICATION.md](docs/VERIFICATION.md) for measured results and produc
 ## v1.1 recommendations
 
 Run a real-classroom pilot and profile 35 devices first. Add touch-target refinements, optional accessibility contrast/large-text settings, teacher-exported anonymous results and a richer podium animation. Add trusted-backend verification only if needed and with a separate cost review. Future Unit 3 questions can use `CurriculumMode` in `src/curriculum.ts`, consuming the same `Flight` values rather than a second physics engine.
+
+### Downhill settling and the 35 m/s cap
+
+After a safe slope landing, racers roll downhill along connected terrain edges until a flat base or local valley, then may shoot again. Airborne motion retains the ideal projectile equations. Ground settling is an arcade model: acceleration is gravity along the slope, ground speed caps at 8 m/s, and flat ground stops the racer without uphill coasting. It uses exact segment times and the same launch event on every client, including late joins and reconnects. Flight observations exclude rolling time and distance. Goals score at the final settled position. Training flag randomization chooses flat terrain so the goal stays reachable. Saved slope targets from older rooms normalize to the downhill flat consistently on all clients.
+
+All speed controls and Firebase launch/submission validation cap speed at 35 m/s. Level 5 alternates shorter precision jumps and near-cap leaps; its stable course ID is unchanged. Solo Championship islands were narrowed to keep all generated solutions inside the new cap. Refresh every device and reset existing rounds after updating, so all racers use the same physics/layout. Legacy race events above the cap safely return to the starting checkpoint.
