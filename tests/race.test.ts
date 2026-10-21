@@ -1,0 +1,10 @@
+import { it,expect } from 'vitest';
+import { canLaunch, replay, leaderboard } from '../src/race';
+import { courses } from '../src/courses';
+const control={epoch:2,course:0,phase:'race' as const,startsAt:10000};
+it('blocks launches during countdown and permits them at zero',()=>{expect(canLaunch(control,9999)).toBe(false);expect(canLaunch(control,10000)).toBe(true);});
+it('ignores launches belonging to a prior reset',()=>{expect(replay(courses[0],control,{epoch:1,seq:1,x:2,y:0,angle:45,power:20,at:10001},12000).position).toEqual(courses[0].checkpoints[0]);});
+it('replays late joins to rest without replaying an animation',()=>{const r=replay(courses[0],control,{epoch:2,seq:1,x:2,y:0,angle:45,power:20,at:10000},100000);expect(r.flying).toBe(false);expect(r.position.x).toBeGreaterThan(2);});
+it('breaks equal finish times stably by id',()=>{expect(leaderboard([{id:'b',name:'B',x:100,finishedAt:12},{id:'a',name:'A',x:100,finishedAt:12}]).map(x=>x.id)).toEqual(['a','b']);});
+it('orders finished racers before progress and unfinished racers by position',()=>{expect(leaderboard([{id:'a',name:'A',x:30},{id:'b',name:'B',x:100,finishedAt:20},{id:'c',name:'C',x:50}]).map(x=>x.id)).toEqual(['b','c','a']);});
+it('preserves position and finish time when the teacher ends a race',()=>{const c={...control,phase:'ended' as const,endsAt:15000},e={epoch:2,seq:1,x:2,y:0,angle:45,power:20,at:10000};const r=replay(courses[0],c,e,999999);expect(r.position.x).toBeGreaterThan(40);expect(r.flying).toBe(false);});
