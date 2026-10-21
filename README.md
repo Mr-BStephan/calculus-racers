@@ -36,7 +36,7 @@ During Training Meadow practice, the host can press **Randomize training flag �
 
 ## Firebase production setup — project administrator
 
-No production Firebase project is bundled or provisioned. Do these steps in your own project; do **not** enable public-write rules to get past setup.
+The hosted game is connected to the calculus-racers Spark project, with restricted rules deployed and two independent production student browser clients tested. Teacher authorization is completed after the teacher’s first Google sign-in. The steps below apply when configuring your own project or fork; do **not** enable public-write rules to get past setup.
 
 1. Create a **Spark** project in Firebase Console. Create one Realtime Database in locked mode. This application does not use Firestore, Cloud Functions, paid hosting, or a service account in the browser.
 2. Register a web app and copy its **public web configuration**. Include `apiKey`, `authDomain`, `databaseURL`, `projectId`, `appId`. Firebase web config identifies the project; rules and Firebase Auth provide authorization.

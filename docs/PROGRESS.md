@@ -25,3 +25,5 @@ Ruling: deployment will initially be offline-only because no production Firebase
 Ruling: an observed Vary: Origin cache mismatch on JS/CSS caused a failed offline reload. Cache matching now ignores Vary only inside this app’s named precache of same-origin static build assets. Offline regression test passes.
 
 Training flag update: host-only Randomize training flag button in Training Meadow practice; shared 40–220 m terrain-grounded flag, fresh practice epoch, positions/strokes reset. Competitive finishes and one-shot missions retain their prescribed conditions. Verified 32 pure + 17 rules + 8 browser tests and TypeScript/build.
+
+Production setup: authenticated project administrator CLI, deployed restricted rules explicitly to calculus-racers, retrieved public web configuration, stored GitHub Actions variable and successfully redeployed Pages. Verified enabled Google/Anonymous providers and authorized Pages domain. Two independent real production student clients passed shared target/reset/rejoin/race launch and server event readback; temporary fixtures/accounts removed. Teacher Google login/allowlist and full teacher-led session remain pending.

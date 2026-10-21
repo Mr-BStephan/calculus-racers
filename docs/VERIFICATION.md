@@ -1,5 +1,13 @@
 # Verification — October 20, 2026
 
+## Production Firebase connection
+
+The hosted site is now connected to the calculus-racers Spark project through the GitHub Actions public configuration variable. The checked-in restricted database rules were deployed successfully. Admin readback confirms Anonymous and Google sign-in are enabled and mr-bstephan.github.io is authorized. Pages deployment succeeded.
+
+Two independent Chrome browser contexts with distinct anonymous identities joined the same actual production Firebase room. Verified shared training targets, shared reset, rejoin, synchronized race launches, landing, and server readback of both accepted current-epoch launch records. Temporary validation room and its anonymous accounts were removed afterward. An initial test used UI state before asynchronous control updates arrived; the harness was corrected to await shared state and authoritative launch readback, and the complete check passed. Production offline reload/play smoke check also passed with no browser errors.
+
+The temporary room was created and controlled through authenticated project administration for this test. The teacher Google popup, teacher allowlist, teacher-created production rooms, and full production championship remain pending the teacher's first game sign-in. Historical unconfigured notes below describe earlier delivery stages and are superseded by this section.
+
 ## Random training flag update
 
 **32 pure tests**, **17 database rules tests**, and **8 Chrome browser tests** pass; strict TypeScript and production build pass. Coverage verifies terrain height at randomized flags, permitted target ranges, stale-shot rejection after reset, practice-only completion, host-only writes, invalid-condition rejection, and two independent students receiving identical targets and reset stroke counts. Full browser suite passed in 40.9 seconds. Production Firebase remains unconfigured.
@@ -31,8 +39,8 @@ Screenshots from browser QA remain in ignored `test-results/`; they contain inve
 
 ## Not verified
 
-- A production Firebase project, Google teacher OAuth and deployed production database rules are **not configured** in this delivery. The Pages site uses offline practice until its public Firebase web config is supplied and it is rebuilt.
-- No two-client **production Firebase room** has been tested. Do not infer production multiplayer readiness from emulator results.
+- Teacher Google popup and allowlist completion still require the teacher’s first game sign-in.
+- Production student networking was tested with two clients as described above; the full teacher-led classroom and championship acceptance flow is still pending.
 - No 35-device physical Chromebook performance test, school-network connectivity pilot, monthly bandwidth measurement or adversarial identity-cycling test has occurred.
 
 ## Production acceptance checklist
