@@ -1,5 +1,5 @@
 import { it,expect } from 'vitest';
-import { canLaunch, replay, leaderboard } from '../src/race';
+import { canLaunch, replay, leaderboard, previewMode } from '../src/race';
 import { courses } from '../src/courses';
 const control={epoch:2,course:0,phase:'race' as const,startsAt:10000};
 it('blocks launches during countdown and permits them at zero',()=>{expect(canLaunch(control,9999)).toBe(false);expect(canLaunch(control,10000)).toBe(true);});
@@ -8,3 +8,4 @@ it('replays late joins to rest without replaying an animation',()=>{const r=repl
 it('breaks equal finish times stably by id',()=>{expect(leaderboard([{id:'b',name:'B',x:100,finishedAt:12},{id:'a',name:'A',x:100,finishedAt:12}]).map(x=>x.id)).toEqual(['a','b']);});
 it('orders finished racers before progress and unfinished racers by position',()=>{expect(leaderboard([{id:'a',name:'A',x:30},{id:'b',name:'B',x:100,finishedAt:20},{id:'c',name:'C',x:50}]).map(x=>x.id)).toEqual(['b','c','a']);});
 it('preserves position and finish time when the teacher ends a race',()=>{const c={...control,phase:'ended' as const,endsAt:15000},e={epoch:2,seq:1,x:2,y:0,angle:45,power:20,at:10000};const r=replay(courses[0],c,e,999999);expect(r.position.x).toBeGreaterThan(40);expect(r.flying).toBe(false);});
+it('shows the full preview only in practice/test rounds',()=>{expect(previewMode({...control,phase:'practice'},true,false)).toBe('trajectory');expect(previewMode(control,true,false)).toBe('direction');for(const phase of ['lobby','ended','study','fired'] as const)expect(previewMode({...control,phase},true,false)).toBe('none');expect(previewMode({...control,phase:'practice',mission:0},true,false)).toBe('none');expect(previewMode({...control,phase:'practice'},false,false)).toBe('none');expect(previewMode({...control,phase:'practice'},true,true)).toBe('none');});

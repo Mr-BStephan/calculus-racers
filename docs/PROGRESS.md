@@ -1,5 +1,7 @@
 # Implementation ledger — PLAN.md
 
+Latest preview policy: full ballistic preview is available only in practice/test rounds. Ordinary races show only the short launch-direction arrow. One-Shot Championship has no pre-shot preview; the previously requested teacher-controlled post-round solution reveal remains. Preview gating has a regression test; 25 pure tests and all seven browser tests pass after this change.
+
 Host update: explicit Next level / New match controls; shared per-map stroke scoreboard and totals; client and rule-enforced nickname filter. New tests: 24 pure, 15 rules, 7 browser. Review fixes prevent practice contamination, sanitize all Canvas names, and freeze rounds with server timestamps before fetching and archiving accepted strokes. See HOST_UPDATE.md and VERIFICATION.md.
 
 Ruling: proceed inline using the supplied handoff, per explicit instruction to implement without stopping at planning.
