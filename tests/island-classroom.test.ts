@@ -1,7 +1,9 @@
 import {it,expect} from 'vitest';
 import {islandSeed,islandRows} from '../src/island-classroom';
-import {generateIsland} from '../src/island';
+import {IslandRound,generateIsland} from '../src/island';
 it('derives stable per-player maps from host round conditions',()=>{expect(islandSeed(100,'alice')).toBe(islandSeed(100,'alice'));expect(islandSeed(101,'alice')).not.toBe(islandSeed(100,'alice'));});
 it('scores immutable settings rather than a reported landing, keeping unfinished players pending',()=>{const epoch=100,start=1000,m=generateIsland(islandSeed(epoch,'a')),rounds={'100':{epoch,startsAt:start,shots:{a:{epoch,angle:m.angle,power:m.speed,at:2000},b:{epoch,angle:5,power:5,at:2000}}}},racers={a:{name:'Comet'},b:{name:'Frog'},c:{name:'Fox'}};const pending=islandRows(rounds,racers,epoch,2001);expect(pending.find(r=>r.id==='a')?.status).toBe('In flight');const rows=islandRows(rounds,racers,epoch,100000);expect(rows.find(r=>r.id==='a')?.status).toBe('Success');expect(rows.find(r=>r.id==='b')?.status).toBe('Fail');expect(rows.find(r=>r.id==='c')?.status).toBe('No shot');expect(rows.find(r=>r.id==='a')?.timeMs).toBeGreaterThan(0);});
 
 it('keeps archived shots pending until the flight actually ends',()=>{const epoch=100,m=generateIsland(islandSeed(epoch,'a')),round={epoch,startsAt:1000,shots:{a:{epoch,angle:m.angle,power:m.speed,at:2000}}};expect(islandRows({'100':round},{a:{name:'Comet'}},101,2001)[0].status).toBe('In flight');expect(islandRows({'100':round},{a:{name:'Comet'}},101,100000)[0].status).toBe('Success');});
+
+it('finishes the shared score sheet on the same accelerated clock as the island animation',()=>{const epoch=100,m=generateIsland(islandSeed(epoch,'a')),shot={epoch,angle:m.angle,power:m.speed,at:2000};const r=new IslandRound(islandSeed(epoch,'a'));r.launch(shot.angle,shot.power,shot.at+3000);const deadline=shot.at+3000+r.shot!.flight.duration*800,history={'100':{epoch,startsAt:1000,shots:{a:shot}}};expect(islandRows(history,{a:{name:'Comet'}},epoch,deadline-1)[0].status).toBe('In flight');expect(islandRows(history,{a:{name:'Comet'}},epoch,deadline+1)[0].status).toBe('Success');expect(r.state(deadline+1).won).toBe(true);});

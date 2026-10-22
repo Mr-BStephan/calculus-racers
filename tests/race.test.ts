@@ -1,5 +1,6 @@
 import { it,expect } from 'vitest';
 import { canLaunch, replay, leaderboard, previewMode } from '../src/race';
+import {simulate,pointAt} from '../src/physics';
 import { courses } from '../src/courses';
 const control={epoch:2,course:0,phase:'race' as const,startsAt:10000};
 it('restricts full aiming trajectories to Training Meadow practice',()=>{for(let course=1;course<5;course++)expect(previewMode({...control,course,phase:'practice'},true,false)).toBe('direction');expect(previewMode({...control,course:0,phase:'practice'},true,false)).toBe('trajectory');});
@@ -13,3 +14,5 @@ it('preserves position and finish time when the teacher ends a race',()=>{const 
 it('shows the full preview only in practice/test rounds',()=>{expect(previewMode({...control,phase:'practice'},true,false)).toBe('trajectory');expect(previewMode(control,true,false)).toBe('direction');for(const phase of ['lobby','ended','study','fired'] as const)expect(previewMode({...control,phase},true,false)).toBe('none');expect(previewMode({...control,phase:'practice',mission:0},true,false)).toBe('none');expect(previewMode({...control,phase:'practice'},false,false)).toBe('none');expect(previewMode({...control,phase:'practice'},true,true)).toBe('none');});
 
 it('ranks finishers by shots before time, and time breaks equal-shot ties',()=>{expect(leaderboard([{id:'fast',x:100,seq:4,finishedAt:10},{id:'few',x:100,seq:2,finishedAt:30},{id:'tie',x:100,seq:2,finishedAt:20},{id:'unfinished',x:200,seq:0}]).map(r=>r.id)).toEqual(['tie','few','fast','unfinished']);});
+
+it('plays flight 25 percent faster without changing the physical trajectory or countdown',()=>{const c=courses[0],e={epoch:2,seq:1,x:185,y:0,angle:45,power:20,at:10000},f=simulate(c,{x:e.x,y:e.y},e.angle,e.power);expect(replay(c,control,e,11000).position).toEqual(pointAt(f,1.25));expect(replay({...c,finish:f.end.x,finishY:f.end.y},control,e,100000).finishedAt).toBeCloseTo(e.at+f.duration*800,7);expect(f.duration).toBeCloseTo(2*20*Math.sin(Math.PI/4)/9.8,8);expect(canLaunch(control,9999)).toBe(false);});

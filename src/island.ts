@@ -1,3 +1,4 @@
+import {simulationSeconds,playbackMs} from './timing';
 import {simulate,pointAt,isGoal,type Course,type Flight} from './physics';
 export type IslandMission={seed:number;x:number;y:number;angle:number;speed:number;course:Course};
 export function generateIsland(seed:number):IslandMission{
@@ -11,5 +12,5 @@ export class IslandRound{
  mission:IslandMission;shot?:{at:number;angle:number;speed:number;flight:Flight};
  constructor(seed:number){this.mission=generateIsland(seed);}
  launch(angle:number,speed:number,at:number){if(this.shot)throw new Error('One shot per island. Try a new island.');if(!Number.isFinite(at))throw new Error('Invalid launch time');this.shot={at,angle,speed,flight:simulate(this.mission.course,{x:0,y:0},angle,speed)};}
- state(now:number){const shot=this.shot;if(!shot)return{position:{x:0,y:0},flying:false,done:false,won:false};const elapsed=Math.max(0,(now-shot.at)/1000),f=shot.flight,done=now>=shot.at+f.duration*1000;return{position:pointAt(f,elapsed),flying:now>=shot.at&&!done,done,won:done&&!f.recovered&&isGoal(this.mission.course,f.end)};}
+ state(now:number){const shot=this.shot;if(!shot)return{position:{x:0,y:0},flying:false,done:false,won:false};const elapsed=simulationSeconds(now-shot.at),f=shot.flight,done=now>=shot.at+playbackMs(f.duration);return{position:pointAt(f,elapsed),flying:now>=shot.at&&!done,done,won:done&&!f.recovered&&isGoal(this.mission.course,f.end)};}
 }
