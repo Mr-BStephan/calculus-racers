@@ -1,0 +1,13 @@
+import {test,expect} from '@playwright/test';
+test('players rename after joining closes without changing strokes or anonymous identity',async({browser,baseURL})=>{
+ const contexts=await Promise.all([browser.newContext(),browser.newContext()]),[host,student]=await Promise.all(contexts.map(c=>c.newPage()));
+ try{
+ await Promise.all([host,student].map(p=>p.goto(baseURL!)));await host.locator('#teacher-open').click();await host.locator('#teacher-login').click();await expect(host.locator('#room-code')).toHaveText(/^[A-Z2-9]{6}$/);const code=(await host.locator('#room-code').textContent())!;
+ await student.locator('#nickname').fill('Original Comet');await student.locator('#join-open').click();await student.locator('#code').fill(code);await student.locator('#join-submit').click();await expect(student.locator('#join-dialog')).toBeHidden();await host.locator('#joining').click();await host.locator('#practice').click();
+ await expect(student.locator('#launch')).toBeEnabled();await student.locator('#launch').click();await expect(student.locator('#strokes')).toHaveText('1');
+ await student.locator('#nickname').fill('Renamed Comet');await host.locator('#joining').click();await host.locator('#joining').click();await expect(student.locator('#nickname')).toHaveValue('Renamed Comet');await student.evaluate(async()=>{const path='/src/network.ts';const {Network}=await import(path),original=Network.prototype.rename;let release:()=>void;const gate=new Promise<void>(r=>release=r);(window as any).__releaseRename=()=>release();Network.prototype.rename=async function(name:string){await gate;return original.call(this,name);};});await student.locator('#save-nickname').click();await student.locator('#nickname').fill('Latest Comet');await student.evaluate(()=>(window as any).__releaseRename());await expect(host.locator('#leaderboard')).toContainText('Renamed Comet');await expect(student.locator('#nickname')).toHaveValue('Latest Comet');await student.locator('#save-nickname').click();await expect(host.locator('#leaderboard')).toContainText('Latest Comet');await expect(student.locator('#strokes')).toHaveText('1');
+ await student.reload();await expect(student.locator('#nickname')).toHaveValue('Latest Comet');await expect(student.locator('#nickname')).toBeEnabled();
+ await student.locator('#nickname').fill('Teacher');await student.locator('#save-nickname').click();await expect(student.locator('#nickname-feedback')).toHaveClass(/name-error/);await expect(host.locator('#leaderboard')).toContainText('Latest Comet');
+ await host.locator('#destroy-room').click();
+ }finally{await Promise.all(contexts.map(c=>c.close()));}
+});

@@ -5,6 +5,6 @@ const fragments=policy.blockedFragments.map(pattern).join('|');
 const words=policy.blockedWords.map(pattern).join('|');
 const r=JSON.parse(fs.readFileSync('database.rules.json','utf8'));
 const rejectWords=[`^(${words})$`,`^(${words})[ _-].*`,`.*[ _-](${words})$`,`.*[ _-](${words})[ _-].*`].map(source=>`!newData.val().toLowerCase().matches(/${source}/)`).join(' && ');
-r.rules.rooms.$code.racers.$uid.name['.validate']=`newData.isString() && newData.val().length >= 1 && newData.val().length <= 18 && newData.val().matches(/^[a-zA-Z0-9 _-]+$/) && newData.val().matches(/.*[a-zA-Z0-9].*/) && !newData.val().toLowerCase().matches(/.*(${fragments}).*/) && ${rejectWords} && (!data.exists() || newData.val() === data.val())`;
+r.rules.rooms.$code.racers.$uid.name['.validate']=`newData.isString() && newData.val().length >= 1 && newData.val().length <= 18 && newData.val().matches(/^[a-zA-Z0-9 _-]+$/) && newData.val().matches(/.*[a-zA-Z0-9].*/) && !newData.val().toLowerCase().matches(/.*(${fragments}).*/) && ${rejectWords}`;
 fs.writeFileSync('database.rules.json',JSON.stringify(r,null,2)+'\n');
 console.log('Nickname validation rules synchronized from the shared policy.');

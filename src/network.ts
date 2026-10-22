@@ -47,6 +47,7 @@ export class Network{
   }
   await update(ref(this.db,`rooms/${this.code}`),changes);
  }
+ async rename(name:string){await set(ref(this.db,`rooms/${this.code}/racers/${this.uid}/name`),cleanName(name));}
  async appearance(sprite:number|undefined,color:number|undefined){validateAppearance(sprite??0,color??0);await update(ref(this.db,`rooms/${this.code}/racers/${this.uid}`),{...(sprite!==undefined?{sprite}:{}),...(color!==undefined?{color}:{})});}
  async submitIsland(epoch:number,angle:number,power:number){if(!this.connected)throw new Error('Reconnect before confirming your shot.');const p=ref(this.db,`rooms/${this.code}/islandRounds/${epoch}/shots/${this.uid}`);await set(p,{epoch,angle,power,at:serverTimestamp()});return(await get(p)).val() as Submission;}
  private creditStops:(()=>void)[]=[];
