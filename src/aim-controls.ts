@@ -16,14 +16,14 @@ export function mountAimControls(root:Document|HTMLElement=document,prefix=''){
  function pointer(target:Element,change:(e:PointerEvent)=>void){let dragging=false;target.addEventListener('pointerdown',event=>{const e=event as PointerEvent;if((target===svg?angle:power).disabled)return;e.preventDefault();dragging=true;(target as HTMLElement).setPointerCapture(e.pointerId);change(e);});target.addEventListener('pointermove',event=>{if(dragging)change(event as PointerEvent);});for(const type of ['pointerup','pointercancel'])target.addEventListener(type,()=>dragging=false);}
  pointer(svg,e=>{const box=svg.getBoundingClientRect(),x=(e.clientX-box.left)/box.width*170-28,y=128-(e.clientY-box.top)/box.height*150;const a=Math.max(5,Math.min(85,Math.atan2(y,x)*180/Math.PI));set(angle,aNumber,Math.round(a*10)/10);});
  pointer(meter,e=>{const box=meter.getBoundingClientRect();set(power,pNumber,Math.round((5+Math.max(0,Math.min(1,(e.clientX-box.left)/box.width))*30)*100)/100);});
- const hint=document.createElement('small');hint.className='keyboard-hint';hint.textContent='← / → Angle · ↑ / ↓ Speed · Shift: fine adjust';wrap.after(hint);
+ const hint=document.createElement('small');hint.className='keyboard-hint';hint.textContent='↑ / ↓ Angle · ← / → Speed · Shift: fine adjust';wrap.after(hint);
  window.addEventListener('keydown',event=>{
   if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
   if(!angle.isConnected||angle.closest('[hidden]')||document.querySelector('dialog[open]'))return;
   if(root===document&&document.querySelector('#island-mode:not([hidden])'))return;
   const target=event.target as Element|null;
   if(target?.closest('input,textarea,select,[contenteditable]:not([contenteditable="false"])')&&target!==aNumber&&target!==pNumber&&target!==angle&&target!==power)return;
-  const horizontal=event.key==='ArrowLeft'||event.key==='ArrowRight',field=horizontal?angle:power,num=horizontal?aNumber:pNumber;
+  const horizontal=event.key==='ArrowLeft'||event.key==='ArrowRight',field=horizontal?power:angle,num=horizontal?pNumber:aNumber;
   event.preventDefault();if(field.disabled||num.disabled||(root!==document&&root.querySelector('#island-confirm:not([hidden])')))return;
   const sign=event.key==='ArrowLeft'||event.key==='ArrowDown'?-1:1,current=Number(num.value);
   if(!Number.isFinite(current))return;
