@@ -1,3 +1,4 @@
+import {scoreCell} from '../src/scoreboard';
 import {it,expect} from 'vitest';
 import {validateNickname} from '../src/names';
 import {scoreRows,snapshotRound,type Scorecard} from '../src/scorecard';
@@ -8,3 +9,8 @@ it('retains previous map scores and never double-counts the archived active roun
 it('ranks completed courses before low-stroke unfinished attempts',()=>{const rows=scoreRows({'0':{epoch:1,results:{a:{strokes:7,finished:true},b:{strokes:1,finished:false}}}},[{id:'b',name:'B',strokes:0,finished:false},{id:'a',name:'A',strokes:0,finished:false}],{epoch:2,course:1,phase:'lobby',startsAt:0});expect(rows.map(r=>r.id)).toEqual(['a','b']);});
 
 it('keeps finish place and time in archived and current score cells',()=>{const control={epoch:2,course:0,phase:'race' as const,startsAt:1000},event={epoch:2,seq:3,x:185,y:0,angle:45,power:20,at:2000};const card=snapshotRound(control,{a:{name:'A',sprite:0,launch:event},b:{name:'B',sprite:0,launch:{...event,at:1500}}},100000)!;expect(card.results.b.rank).toBe(1);expect(card.results.a.rank).toBe(2);expect(card.results.a.timeMs).toBeGreaterThan(card.results.b.timeMs!);const rows=scoreRows({},[{id:'a',name:'A',strokes:3,finished:true,timeMs:2000,rank:1}],control);expect(rows[0].courses[0]?.rank).toBe(1);expect(rows[0].courses[0]?.timeMs).toBe(2000);});
+
+it('archives fewer shots first even when a faster finisher took more shots',()=>{const control={epoch:2,course:0,phase:'race' as const,startsAt:1000},event={epoch:2,seq:2,x:185,y:0,angle:45,power:20,at:3000},card=snapshotRound(control,{a:{name:'A',sprite:0,launch:event},b:{name:'B',sprite:0,launch:{...event,seq:4,at:1500}}},100000)!;expect(card.results.a.rank).toBe(1);expect(card.results.b.rank).toBe(2);});
+it('breaks aggregate score ties by total finish time and recomputes legacy map ranks',()=>{const card:Scorecard={'0':{epoch:1,results:{a:{strokes:2,finished:true,timeMs:5000,rank:2},b:{strokes:3,finished:true,timeMs:3000,rank:1},c:{strokes:2,finished:true,timeMs:4000}}}},racers=['a','b','c'].map(id=>({id,name:id,strokes:0,finished:false})),rows=scoreRows(card,racers,{epoch:2,course:1,phase:'lobby',startsAt:0});expect(rows.map(r=>r.id)).toEqual(['c','a','b']);expect(rows.find(r=>r.id==='a')?.courses[0]?.rank).toBe(2);expect(rows.find(r=>r.id==='b')?.courses[0]?.rank).toBe(3);});
+
+it('shows a legacy finish rank without inventing a finish time',()=>{expect(scoreCell({strokes:2,finished:true,rank:1})).toBe('2 ★ · #1 · time unavailable');});
