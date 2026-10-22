@@ -1,7 +1,7 @@
 import {validateSettings} from './physics';
 import type {Submission} from './network';
 import {IslandScoreboard,type IslandRow} from './island-classroom';
-import {IslandRound} from './island';
+import {IslandRound,islandViewBounds} from './island';
 import {Renderer} from './render';
 import {mountAimControls} from './aim-controls';
 import {sound} from './sound';
@@ -34,7 +34,7 @@ export class IslandMode{
  close(){cancelAnimationFrame(this.frame);this.active=false;this.root.hidden=true;document.body.classList.remove('island-open');}
  private updateCoordinates(){const m=this.round.mission;this.el('coordinates').textContent=`Start (0, 0) → Island centre (${m.x}, ${m.y}) m · Landing strip x = ${m.x-6}…${m.x+6}, y = ${m.y}`;}
  private draw(t:number){if(!this.active)return;const state=this.round.state((this.managed?.now()??Date.now())),shot=this.round.shot,look=this.look(),count=shot?Math.ceil((shot.at-(this.managed?.now()??Date.now()))/1000):0;
-  this.renderer.draw({course:this.round.mission.course,racers:this.managed?.canPlay?[{id:'solo',...look,position:state.position,flying:state.flying,finished:state.won}]:[],localId:'solo',spectator:false,now:t,celebrate:state.won,bounds:{minX:-12,maxX:145,minY:-12,maxY:88}});
+  this.renderer.draw({course:this.round.mission.course,racers:this.managed?.canPlay?[{id:'solo',...look,position:state.position,flying:state.flying,finished:state.won}]:[],localId:'solo',spectator:false,now:t,celebrate:state.won,bounds:islandViewBounds(this.round.mission,state.flying?state.position:undefined)});
   const countdown=this.el('countdown');countdown.hidden=count<=0;countdown.textContent=String(count);
   for(const k of ['angle','angle-number','power','power-number'])this.el<HTMLInputElement>(k).disabled=!!shot||this.confirming||this.saving||!this.managed?.canPlay;
   this.el<HTMLButtonElement>('lock').disabled=!!shot||this.saving||!this.managed?.canPlay;this.el('lock').textContent=shot?'SHOT USED · 1 / 1':'LOCK ONE SHOT ↗';this.el<HTMLButtonElement>('retry').hidden=!this.managed?.host;this.el<HTMLButtonElement>('retry').disabled=this.saving;

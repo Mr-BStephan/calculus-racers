@@ -199,3 +199,5 @@ Regression tests show that all five courses remain finishable using permitted se
 ### Playback speed
 
 Flights and downhill settling run at a shared **1.25× playback rate** (25% faster movement, 20% less wall-clock waiting). The same angle and speed still produce the same path and landing point. Physics equations, 35 m/s limit, simulated flight observations, three-second countdowns, and calculation timers are unchanged. Race finish times use the actual accelerated wall-clock arrival, and Championship result/credit eligibility waits for that same arrival. Reconnects derive the accelerated position from the existing launch timestamp; no extra network messages are sent. Refresh all clients and reset the round after updating.
+
+Championship camera framing now fits each island's actual coordinates instead of a wide fixed map. The launch pad and island appear substantially larger on Chromebook screens. Once fired, the camera expands only to include the actual airborne racer; it does not show a predicted trajectory or reveal the solution.
