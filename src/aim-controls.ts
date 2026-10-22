@@ -16,6 +16,18 @@ export function mountAimControls(root:Document|HTMLElement=document,prefix=''){
  function pointer(target:Element,change:(e:PointerEvent)=>void){let dragging=false;target.addEventListener('pointerdown',event=>{const e=event as PointerEvent;if((target===svg?angle:power).disabled)return;e.preventDefault();dragging=true;(target as HTMLElement).setPointerCapture(e.pointerId);change(e);});target.addEventListener('pointermove',event=>{if(dragging)change(event as PointerEvent);});for(const type of ['pointerup','pointercancel'])target.addEventListener(type,()=>dragging=false);}
  pointer(svg,e=>{const box=svg.getBoundingClientRect(),x=(e.clientX-box.left)/box.width*170-28,y=128-(e.clientY-box.top)/box.height*150;const a=Math.max(5,Math.min(85,Math.atan2(y,x)*180/Math.PI));set(angle,aNumber,Math.round(a*10)/10);});
  pointer(meter,e=>{const box=meter.getBoundingClientRect();set(power,pNumber,Math.round((5+Math.max(0,Math.min(1,(e.clientX-box.left)/box.width))*30)*100)/100);});
- const keys=(event:KeyboardEvent,field:HTMLInputElement,num:HTMLInputElement)=>{if(['ArrowLeft','ArrowDown','ArrowRight','ArrowUp'].includes(event.key)){event.preventDefault();const sign=['ArrowLeft','ArrowDown'].includes(event.key)?-1:1;set(field,num,Math.max(Number(field.min),Math.min(Number(field.max),Number(num.value)+sign*(event.shiftKey?.1:1))));}};
- svg.addEventListener('keydown',e=>keys(e,angle,aNumber));meter.addEventListener('keydown',e=>keys(e,power,pNumber));for(const field of [angle,power,aNumber,pNumber])field.addEventListener('input',update);update();
+ const hint=document.createElement('small');hint.className='keyboard-hint';hint.textContent='← / → Angle · ↑ / ↓ Speed · Shift: fine adjust';wrap.after(hint);
+ window.addEventListener('keydown',event=>{
+  if(event.defaultPrevented||event.altKey||event.ctrlKey||event.metaKey||!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+  if(!angle.isConnected||angle.closest('[hidden]')||document.querySelector('dialog[open]'))return;
+  if(root===document&&document.querySelector('#island-mode:not([hidden])'))return;
+  const target=event.target as Element|null;
+  if(target?.closest('input,textarea,select,[contenteditable]:not([contenteditable="false"])')&&target!==aNumber&&target!==pNumber&&target!==angle&&target!==power)return;
+  const horizontal=event.key==='ArrowLeft'||event.key==='ArrowRight',field=horizontal?angle:power,num=horizontal?aNumber:pNumber;
+  event.preventDefault();if(field.disabled||num.disabled||(root!==document&&root.querySelector('#island-confirm:not([hidden])')))return;
+  const sign=event.key==='ArrowLeft'||event.key==='ArrowDown'?-1:1,current=Number(num.value);
+  if(!Number.isFinite(current))return;
+  set(field,num,Math.max(Number(field.min),Math.min(Number(field.max),Number((current+sign*(event.shiftKey?.1:1)).toFixed(5)))));
+ });
+ for(const field of [angle,power,aNumber,pNumber])field.addEventListener('input',update);update();
 }
