@@ -286,7 +286,7 @@
               },
               "details": {
                 ".write": "auth != null && auth.uid === $uid && data.parent().child('eligible').val() === true && !data.exists() && newData.exists()",
-                ".validate": "newData.hasChildren(['name','period','at']) && (data.exists() || newData.hasChild('studentId'))",
+                ".validate": "newData.hasChildren(['name','period','at'])",
                 "name": {
                   ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 80 && newData.val().matches(/^[^<>\u0000-\u001f\u007f]+$/)"
                 },
