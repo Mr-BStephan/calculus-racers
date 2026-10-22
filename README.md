@@ -189,3 +189,9 @@ Names and periods are stored only under `/teacherCredits/{teacherUid}/{room}/{ro
 The CSV is a teacher review record, not a grade upload. Match claims to the current roster and student IDs before any later Classroom work. This game has no Classroom API connection and does not modify grades. Keep exports private; do not commit them. Delete retained records through the Firebase console after school retention needs are satisfied. Frontend code can be inspected to calculate a solution; host control and verified outcomes prevent fabricated offline awards, not automated solving or identity impersonation.
 
 Race score cells retain place by fewest shots, then elapsed race time (including downhill settling). Finishers place ahead of unfinished racers. The overall score sheet compares completed maps, then total shots, then combined finish time. Archived results preserve the ranks even when the host advances maps.
+
+### Course gates and deliberate aiming
+
+Each race course now includes a visible overhead obstacle that blocks repeated 45°/35 m/s shots. Meadow introduces a low passage with its normal training preview; Hills combines rolling valleys with overhead clearance; Canyon narrows the middle shelves and requires a shallow transition; Moon narrows islands and adds a low-gravity canopy; Summit adds a low-arc gate between elevated islands while retaining its mixed short and long jumps. These are actual terrain polygons with the same first-contact collision rules as the ground. Physics, the speed cap, goal radius, and network payload are unchanged.
+
+Regression tests show that all five courses remain finishable using permitted settings, each gate rejects a 45° max-speed shot, and 20 repeated 45° max-speed launches cannot finish any course. Refresh all clients and reset the round after this layout update so everyone shares the same terrain.
