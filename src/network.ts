@@ -5,6 +5,7 @@ import type {Control,Launch} from './race';
 import {snapshotRound,type Scorecard,type RoundScore} from './scorecard';
 import {islandRows,islandSeed,type IslandHistory} from './island-classroom';
 import {validateNickname} from './names';
+import {validateStudentId} from './credits';
 import {validateAppearance} from './characters';
 export type Racer={name:string;sprite:number;color?:number;width?:number;height?:number;launch?:Launch};
 export type Submission={epoch:number;angle:number;power:number;at:number};
@@ -54,8 +55,9 @@ export class Network{
  async creditOwner(){return(await get(ref(this.db,`admission/${this.code}/owner`))).val() as string;}
  watchCredits(owner:string,cb:(credits:Record<string,any>)=>void,error:(e:Error)=>void){if(!this.owner)return;this.creditStops.push(onValue(ref(this.db,`teacherCredits/${owner}`),s=>cb(s.val()??{}),error));}
  watchMyCredit(owner:string,epoch:number,cb:(value:any)=>void,error:(e:Error)=>void){const stop=onValue(ref(this.db,`teacherCredits/${owner}/${this.code}/${epoch}/${this.uid}`),s=>cb(s.val()),error);this.creditStops.push(stop);return stop;}
+ async readCredits(){if(!this.owner)throw new Error('Teacher access required.');return (await get(ref(this.db,`teacherCredits/${this.uid}`))).val()??{};}
  async verifyCredit(owner:string,epoch:number,uid:string){if(!this.owner||owner!==this.uid)throw new Error('Host verification required.');const record=(await get(ref(this.db,`rooms/${this.code}/islandRounds/${epoch}`))).val();if(!record)return;const rows=islandRows({[epoch]:record},{[uid]:{name:'Racer'}},epoch,this.now());if(rows.find(r=>r.id===uid)?.status!=='Success')return;const shot=record.shots[uid];await runTransaction(ref(this.db,`teacherCredits/${owner}/${this.code}/${epoch}/${uid}`),old=>old??{eligible:true,seed:islandSeed(epoch,uid),angle:shot.angle,power:shot.power,earnedAt:serverTimestamp()});}
- async claimCredit(owner:string,epoch:number,name:string,period:number){name=name.trim();if(name.length<2||name.length>80||/[<>\r\n\t]/.test(name)||!Number.isInteger(period)||period<1||period>8)throw new Error('Enter your full name and period (1–8).');await set(ref(this.db,`teacherCredits/${owner}/${this.code}/${epoch}/${this.uid}/details`),{name,period,at:serverTimestamp()});}
+ async claimCredit(owner:string,epoch:number,name:string,period:number,studentId:string){studentId=validateStudentId(studentId);name=name.trim();if(name.length<2||name.length>80||/[<>\r\n\t]/.test(name)||!Number.isInteger(period)||period<1||period>8)throw new Error('Enter your full name and period (1–8).');await set(ref(this.db,`teacherCredits/${owner}/${this.code}/${epoch}/${this.uid}/details`),{name,studentId,period,at:serverTimestamp()});}
  async launch(event:Omit<Launch,'at'>){if(!this.connected)throw new Error('Connection lost. Wait to reconnect or switch to offline practice.');await set(ref(this.db,`rooms/${this.code}/racers/${this.uid}/launch`),{...event,at:serverTimestamp()});}
  async submit(epoch:number,angle:number,power:number){if(!this.connected)throw new Error('Reconnect before locking your shot.');await set(ref(this.db,`rooms/${this.code}/submissions/${this.uid}`),{epoch,angle,power,at:serverTimestamp()});}
  async kick(uid:string){const slot=(await get(ref(this.db,`rooms/${this.code}/members/${uid}`))).val();const changes:Record<string,unknown>={[`bans/${uid}`]:true,[`members/${uid}`]:null,[`racers/${uid}`]:null,[`presence/${uid}`]:null,[`submissions/${uid}`]:null};if(slot!==null)changes[`slots/${slot}`]=null;await update(ref(this.db,`rooms/${this.code}`),changes);}

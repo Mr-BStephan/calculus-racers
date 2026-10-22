@@ -19,9 +19,10 @@ test('every successful student receives a private claim in the same championship
   await host.reload();await expect(host.locator('#island-mode')).toBeVisible();
   for(const p of students.slice(0,2)){await expect(p.locator('#island-result')).toContainText('PERFECT LANDING',{timeout:15000});await expect(p.locator('#island-credit')).toBeVisible({timeout:15000});}
   await expect(students[2].locator('#island-credit')).toBeHidden();
-  await Promise.all(students.slice(0,2).map(async(p,i)=>{await p.locator('#island-credit-name').fill('Synthetic Winner '+(i+1));await p.locator('#island-credit-period').selectOption(String(i+1));await p.locator('#island-credit-save').click();await expect(p.locator('#island-credit-status')).toContainText('Saved privately');}));
+  await Promise.all(students.slice(0,2).map(async(p,i)=>{await p.locator('#island-credit-name').fill('Synthetic Winner '+(i+1));await p.locator('#island-credit-student-id').fill('00010'+i);await p.locator('#island-credit-period').selectOption(String(i+1));await p.locator('#island-credit-save').click();await expect(p.locator('#island-credit-status')).toContainText('Saved privately');}));
   for(let i=0;i<2;i++)expect(await students[i].locator('body').innerText()).not.toContain('Synthetic Winner '+(2-i));
   await host.locator('#island-exit').click();const download=host.waitForEvent('download');await host.locator('#export-credits').click();const stream=await(await download).createReadStream();let csv='';for await(const chunk of stream!)csv+=chunk.toString();expect(csv).toContain('Synthetic Winner 1');expect(csv).toContain('Synthetic Winner 2');
   await host.locator('#destroy-room').click();
+  await host.locator('#teacher-open').click();await host.locator('#teacher-login').click();await expect(host.locator('#room-code')).toHaveText(/^[A-Z2-9]{6}$/);expect(await host.locator('#room-code').textContent()).not.toBe(code);await host.locator('#credit-roster-summary').click();await expect(host.locator('#credit-roster-body')).toContainText('000100');await expect(host.locator('#credit-roster-body')).toContainText('000101');await expect(host.locator('#credit-roster-body')).toContainText(code);await host.screenshot({path:'test-results/cumulative-credit-roster.png'});await host.locator('#destroy-room').click();
  }finally{await Promise.all(contexts.map(c=>c.close()));}
 });
