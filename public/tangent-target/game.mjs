@@ -1,13 +1,13 @@
 import {TAU,orbit,advance,segmentDistance,parseSlope,slope,round} from './physics.mjs';
 
 const $=id=>document.getElementById(id), canvas=$('board'), ctx=canvas.getContext('2d');
-const W=900,H=680,S=42, teal='#5ce8c1',coral='#ff826f';
+const W=900,H=680,S=42, teal='#328b79',coral='#da6783';
 let mode='arcade', phase='ready', data, angle=0, shot=null, release=null, trail=[], particles=[];
 let score=0,streak=0,level=1,correct=0,attempts=0,question=0,paused=false,last=0,clock=0;
 let closest=Infinity, shotTime=0, activeCode='', memory=new Map(), storageWarning=false, audio;
 const fmt=n=>Math.abs(n)<.00001?'0':Number(n.toFixed(3)).toString();
 const xy=p=>`(${fmt(p.x)}, ${fmt(p.y)})`;
-const color=()=>mode==='calculus'?'#b5a1ff':mode==='oneshot'?'#f3cc76':teal;
+const color=()=>mode==='calculus'?'#8863b4':mode==='oneshot'?'#ab791f':teal;
 const screen=p=>({x:W/2+p.x*S,y:H/2-p.y*S});
 function say(text,type=''){ $('feedback').textContent=text;$('feedback').className=`feedback ${type}`; }
 function readResult(code){
@@ -103,7 +103,7 @@ function finish(hit){
       memory.set(activeCode,{score,angle,message:warning});say(warning,'error');
     }
   }else if(mode==='arcade'){
-    if(hit){streak++;const points=100+Math.min(streak-1,9)*25;score+=points;level++;say(`Nailed it! +${points} points · ${streak} hit streak.\nThe ball followed its instantaneous velocity. Next target gets a little smaller.`,'success');}
+    if(hit){streak++;const points=100+Math.min(streak-1,9)*25;score+=points;level++;say(`Sweet shot! +${points} points · ${streak} hit streak.\nThe ball followed its instantaneous velocity. Next target gets a little smaller.`,'success');}
     else{streak=0;say(`Missed by ${fmt(closest)} units from the target center. Watch the direction the ball is moving, not the radius. Try the next target.`);}
   }else{score+=100;say(`Tangent confirmed! +100 points.\n${explain()}\nSlope describes the line; the velocity vector chooses which way along it.`,'success');}
   setControls();
@@ -124,26 +124,30 @@ function step(dt){
 }
 function line(a,b,c,width=1,dash=[]){const p=screen(a),q=screen(b);ctx.beginPath();ctx.setLineDash(dash);ctx.strokeStyle=c;ctx.lineWidth=width;ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();ctx.setLineDash([]);}
 function circle(p,r,fill,stroke,width=1){const q=screen(p);ctx.beginPath();ctx.arc(q.x,q.y,r*S,0,TAU);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke();}}
-function label(text,p,c='#a6b6cc',size=12){const q=screen(p);ctx.font=`${size}px Segoe UI, sans-serif`;ctx.fillStyle=c;ctx.textAlign='center';ctx.fillText(text,q.x,q.y);}
+function label(text,p,c='#76677e',size=12){const q=screen(p);ctx.font=`${size}px Segoe UI, sans-serif`;ctx.fillStyle=c;ctx.textAlign='center';ctx.fillText(text,q.x,q.y);}
 function draw(){
   ctx.clearRect(0,0,W,H);const c=color(),o=data.circle,p=shot||orbit(o,angle);
-  for(let i=-10;i<=10;i++)line({x:i,y:-8},{x:i,y:8},i===0?'#33465d':'#1a293d');
-  for(let i=-8;i<=8;i++)line({x:-11,y:i},{x:11,y:i},i===0?'#33465d':'#1a293d');
+  for(let i=-10;i<=10;i++)line({x:i,y:-8},{x:i,y:8},i===0?'#c6b9ca':'#ece3e8');
+  for(let i=-8;i<=8;i++)line({x:-11,y:i},{x:11,y:i},i===0?'#c6b9ca':'#ece3e8');
   if(mode!=='arcade'){for(let i=-8;i<=8;i+=2){if(i){label(String(i),{x:i,y:-.4});if(Math.abs(i)<8)label(String(i),{x:-.35,y:i});}}label('x',{x:10.25,y:-.4});label('y',{x:.35,y:7.5});}
   circle({x:o.h,y:o.k},o.r,`${c}05`,`${c}70`,2);
   // A short arrow on the orbit makes the direction of rotation unambiguous.
   const ap=orbit(o,2.2),aq=advance(ap,1,.35);line(ap,aq,c,2);const as=screen(aq);ctx.save();ctx.translate(as.x,as.y);ctx.rotate(Math.atan2(-ap.dy,ap.dx));ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(5,0);ctx.lineTo(-6,-4);ctx.lineTo(-6,4);ctx.fill();ctx.restore();
-  circle({x:o.h,y:o.k},.055,c);label(mode==='arcade'?'ORBIT':`C ${xy({x:o.h,y:o.k})}`,{x:o.h,y:o.k-.5},'#869db7',11);
+  circle({x:o.h,y:o.k},.055,c);label(mode==='arcade'?'ORBIT':`C ${xy({x:o.h,y:o.k})}`,{x:o.h,y:o.k-.5},'#76677e',11);
   const r=targetRadius();circle(data.target,r+.15+Math.sin(clock*3)*.035,null,`${coral}22`,2);circle(data.target,r,`${coral}12`,coral,2);circle(data.target,r*.48,null,`${coral}90`,1.5);circle(data.target,.055,coral);label('TARGET',{x:data.target.x,y:data.target.y+r+.4},coral,10);
   if(!shot){line({x:o.h,y:o.k},p,`${c}60`,1.5,[5,5]);}
   const showRay=mode==='arcade'&&$('hints').checked||phase==='done';
   if(showRay){const origin=release||p;line(advance(origin,-1,2),advance(origin,1,14),`${c}80`,1.5,[7,7]);}
   if(trail.length>1){ctx.beginPath();trail.forEach((v,i)=>{const q=screen(v);i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);});ctx.strokeStyle=c;ctx.lineWidth=3;ctx.stroke();}
   if(mode==='arcade'&&phase==='orbit')for(let i=12;i>0;i--){const t=orbit(o,angle-i*.028);circle(t,.08,`${c}${Math.round(80*(1-i/13)).toString(16).padStart(2,'0')}`);}
-  ctx.shadowBlur=20;ctx.shadowColor=c;circle(p,.14,c);ctx.shadowBlur=0;circle(p,.25,null,`${c}60`);
+  // The soft halo is decoration; the solid center remains the ball's hit size.
+  ctx.shadowBlur=12;ctx.shadowColor=c;circle(p,.25,`${c}20`);circle(p,.14,c);ctx.shadowBlur=0;
+  const face=screen(p);ctx.fillStyle='#ffffff';
+  for(const side of [-1,1]){ctx.beginPath();ctx.arc(face.x+side*2,face.y-1.5,1,0,TAU);ctx.fill();}
+  ctx.beginPath();ctx.arc(face.x,face.y+.2,2,0,Math.PI);ctx.strokeStyle='#ffffff';ctx.lineWidth=1;ctx.stroke();
   if(mode!=='arcade'&&!shot)label('P',{x:p.x+.4,y:p.y+.4},c,15);
   for(const v of particles)circle(v,.045,coral);
-  if(phase==='ready'&&mode==='arcade'){label('ONE ORBIT. INFINITE POSSIBILITIES.',{x:0,y:-6.8},'#a2b4ca',13);}
+  if(phase==='ready'&&mode==='arcade'){label('A LITTLE SPIN. A LITTLE COURAGE. LET’S GO!' ,{x:0,y:-6.8},'#76677e',13);}
   if(paused){ctx.fillStyle='#07101cbb';ctx.fillRect(0,0,W,H);label('PAUSED',{x:0,y:0},'#eaf1fa',28);}
 }
 function frame(now){const dt=last?Math.min((now-last)/1000,.1):0;last=now;if(!document.hidden)step(dt);draw();requestAnimationFrame(frame);}
