@@ -1,7 +1,8 @@
 import {TAU,orbit,advance,segmentDistance,parseSlope,slope,round} from './physics.mjs';
 
 const $=id=>document.getElementById(id), canvas=$('board'), ctx=canvas.getContext('2d');
-const W=900,H=680,S=42, teal='#328b79',coral='#da6783';
+const W=900,H=680, teal='#328b79',coral='#da6783';
+let S=42;
 let mode='arcade', phase='ready', data, angle=0, shot=null, release=null, trail=[], particles=[];
 let score=0,streak=0,level=1,correct=0,attempts=0,question=0,paused=false,last=0,clock=0;
 let closest=Infinity, shotTime=0, activeCode='', memory=new Map(), storageWarning=false, audio;
@@ -49,6 +50,7 @@ function setControls(){
   updateStats();
 }
 function setup(){
+  S=42;
   landed=false;
   phase='ready';paused=false;shot=null;release=null;trail=[];particles=[];closest=Infinity;shotTime=0;
   $('confirm').close();$('answer').value='';$('direction').value='';
@@ -69,6 +71,7 @@ function setup(){
     say('Find the slope and use the counterclockwise motion to choose the velocity direction.');
   }else{
     data=round(`arcade-${Math.random()}`);angle=Math.random()*TAU;
+    data.distanceVariation=Math.random();
     applyDistance();
     say(`Target ${level}. Start the orbit, then press Space or Release when the tangent points at the target.`);
   }
@@ -212,11 +215,14 @@ function draw(){
 function frame(now){const dt=last?Math.min((now-last)/1000,.1):0;last=now;if(!document.hidden)step(dt);draw();requestAnimationFrame(frame);}
 function setAngle(deg){if(mode!=='oneshot'||phase!=='ready'||!Number.isFinite(deg))return;deg=Math.max(0,Math.min(359.9,deg));angle=deg*Math.PI/180;$('angle').value=deg;$('angle-number').value=Number(deg.toFixed(1));updatePoint();}
 function applyDistance(){
-  const distance=2.5+(difficulty-1)*.625;
+  const minimum=2.5+(difficulty-1),maximum=minimum+1;
+  const distance=minimum+data.distanceVariation;
   const target=advance(orbit(data.circle,data.solution),1,distance);
   data.target={x:target.x,y:target.y};
+  // Leave room for the basket, its label and sprite at every target angle.
+  S=Math.min(42,(W/2-55)/(Math.abs(target.x)+1),(H/2-60)/(Math.abs(target.y)+1));
   $('difficulty-output').textContent=`${difficulty} · ${['Cozy','Gentle','Lively','Zippy','Spicy'][difficulty-1]}`;
-  $('difficulty-help').textContent=`Target is ${fmt(distance)} units along its winning tangent. Higher difficulty means farther targets and faster orbits. Fine-tune speed below.`;
+  $('difficulty-help').textContent=`Target distance: ${minimum}–${maximum} units along its winning tangent. Minimum distance rises with difficulty. Fine-tune speed below.`;
 }
 function setDifficulty(value){
   if(mode!=='arcade'||phase==='flight'||phase==='done'||!Number.isFinite(value))return;

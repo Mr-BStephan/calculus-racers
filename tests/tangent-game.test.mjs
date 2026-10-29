@@ -68,6 +68,9 @@ test('difficulty increases forward target distance and orbit speed, preserving r
   const hard=g.run('Math.hypot(data.target.x-orbit(data.circle,data.solution).x,data.target.y-orbit(data.circle,data.solution).y)');
   assert.ok(hard>easy);assert.ok(Number(g.el('speed').value)>slow);
   assert.equal(Number(g.el('speed').value),6);
+  assert.ok(easy>=2.5-1e-9&&easy<=3.5+1e-9);
+  assert.ok(hard>=6.5-1e-9&&hard<=7.5+1e-9);
+  assert.ok(g.run('Math.abs(data.target.y)*S+targetRadius()*S < H/2-25'));
   assert.ok(g.run('segmentDistance(orbit(data.circle,data.solution),advance(orbit(data.circle,data.solution),1,20),data.target)')<1e-9);
   g.el('launch').click();g.el('launch').click();assert.equal(g.el('difficulty').disabled,true);
 });
