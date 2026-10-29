@@ -67,6 +67,7 @@ test('difficulty increases forward target distance and orbit speed, preserving r
   g.run('setDifficulty(5)');
   const hard=g.run('Math.hypot(data.target.x-orbit(data.circle,data.solution).x,data.target.y-orbit(data.circle,data.solution).y)');
   assert.ok(hard>easy);assert.ok(Number(g.el('speed').value)>slow);
+  assert.equal(Number(g.el('speed').value),6);
   assert.ok(g.run('segmentDistance(orbit(data.circle,data.solution),advance(orbit(data.circle,data.solution),1,20),data.target)')<1e-9);
   g.el('launch').click();g.el('launch').click();assert.equal(g.el('difficulty').disabled,true);
 });
@@ -78,4 +79,9 @@ test('Space cycles completed shots into an orbiting next target and fires with f
   space('next');assert.equal(g.run('phase'),'orbit');assert.equal(g.run('score'),100);
   space('next',true);assert.equal(g.run('phase'),'orbit');
   space('next');assert.equal(g.run('phase'),'flight');
+});
+test('a shot aimed away from the target still visibly flies before a miss is declared',()=>{
+  const g=game();g.run("phase='orbit';angle=0;data.target={x:3,y:-5};launch();step(1/60)");
+  assert.equal(g.run('phase'),'flight');assert.ok(g.run('shot.y>release.y'));
+  g.run('step(.95)');assert.equal(g.run('phase'),'done');assert.equal(g.run('score'),0);
 });

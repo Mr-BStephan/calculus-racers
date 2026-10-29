@@ -6,6 +6,7 @@ let mode='arcade', phase='ready', data, angle=0, shot=null, release=null, trail=
 let score=0,streak=0,level=1,correct=0,attempts=0,question=0,paused=false,last=0,clock=0;
 let closest=Infinity, shotTime=0, activeCode='', memory=new Map(), storageWarning=false, audio;
 let difficulty=3;
+let landed=false, resultTime=0;
 const fmt=n=>Math.abs(n)<.00001?'0':Number(n.toFixed(3)).toString();
 const xy=p=>`(${fmt(p.x)}, ${fmt(p.y)})`;
 const color=()=>mode==='calculus'?'#8863b4':mode==='oneshot'?'#ab791f':teal;
@@ -48,6 +49,7 @@ function setControls(){
   updateStats();
 }
 function setup(){
+  landed=false;
   phase='ready';paused=false;shot=null;release=null;trail=[];particles=[];closest=Infinity;shotTime=0;
   $('confirm').close();$('answer').value='';$('direction').value='';
   if(mode==='oneshot'){
@@ -78,7 +80,7 @@ function changeMode(next){
   $('board-label').textContent=mode==='arcade'?'ARCADE / FREE PLAY':mode==='calculus'?'CALCULUS / SLOPE LAB':'ONE-SHOT / CLASS CHALLENGE';
   $('mode-kicker').textContent=mode==='arcade'?'TRUST YOUR TIMING':mode==='calculus'?'KNOW YOUR DIRECTION':'PRECISION OVER REACTION';
   $('mode-title').textContent=mode==='arcade'?'Catch the tangent.':mode==='calculus'?'Work it out.':'Make your one shot.';
-  $('instructions').textContent=mode==='arcade'?'The ball leaves in the direction it is moving. Release when that path lines up with the target.':mode==='calculus'?'The ball is frozen at P. Calculate the tangent slope, then predict its counterclockwise velocity direction.': 'Use the circle and target coordinates to choose your release point. Prepare as long as you need. Then take one official shot.';
+  $('instructions').textContent=mode==='arcade'?'The raccoon holds a rope and swings around the post. Release when its tangent points into the basket.':mode==='calculus'?'The raccoon is frozen at P. Calculate the tangent slope, then predict its counterclockwise velocity direction.': 'Use the circle and target coordinates to choose your release point. Prepare as long as you need. Then take one official shot.';
   $('score-label').textContent=mode==='oneshot'?'ACCURACY / 1000':'SCORE';$('streak-label').textContent=mode==='calculus'?'SOLVED / TRIES':mode==='oneshot'?'SHOTS LEFT':'STREAK';
   $('math').hidden=mode==='arcade';$('challenge').hidden=mode!=='oneshot';
   $('speed').hidden=$('speed-label').hidden=mode!=='arcade';$('hints').disabled=mode==='oneshot';
@@ -95,6 +97,7 @@ function launch(){
   fire();
 }
 function finish(hit){
+  landed=hit;resultTime=clock;
   phase='done';paused=false;beep(hit);
   if(hit)for(let i=0;i<36;i++)particles.push({x:shot.x,y:shot.y,dx:(Math.random()-.5)*5,dy:(Math.random()-.5)*5,life:.6+Math.random()*.6});
   if(mode==='oneshot'){
@@ -107,8 +110,8 @@ function finish(hit){
       memory.set(activeCode,{score,angle,message:warning});say(warning,'error');
     }
   }else if(mode==='arcade'){
-    if(hit){streak++;const points=100+Math.min(streak-1,9)*25;score+=points;level++;say(`Sweet shot! +${points} points · ${streak} hit streak.\nThe ball followed its instantaneous velocity. Next target gets a little smaller.`,'success');}
-    else{streak=0;say(`Missed by ${fmt(closest)} units from the target center. Watch the direction the ball is moving, not the radius. Try the next target.`);}
+    if(hit){streak++;const points=100+Math.min(streak-1,9)*25;score+=points;level++;say(`Sweet shot! +${points} points · ${streak} hit streak.\nYour raccoon landed the snack! It followed its instantaneous velocity. Next target gets a little smaller.`,'success');}
+    else{streak=0;say(`Missed by ${fmt(closest)} units from the target center. A soft landing in the leaves! Watch the swing direction, not the radius. Try the next target.`);}
   }else{score+=100;say(`Tangent confirmed! +100 points.\n${explain()}\nSlope describes the line; the velocity vector chooses which way along it.`,'success');}
   setControls();
 }
@@ -122,36 +125,88 @@ function step(dt){
     trail.push({x:shot.x,y:shot.y});if(trail.length>180)trail.shift();
     // Judge at closest approach, so accuracy is independent of frame rate.
     const projection=(data.target.x-shot.x)*shot.dx+(data.target.y-shot.y)*shot.dy;
-    if(projection<=0||shotTime>5)finish(closest<=targetRadius()+.13);
+    const hit=closest<=targetRadius()+.13;
+    // A miss must still visibly fly: targets behind the launch point must not
+    // end a shot on its first frame. Keep swept-distance scoring unchanged.
+    if((projection<=0&&(hit||shotTime>=.9))||shotTime>5)finish(hit);
   }
   particles=particles.map(p=>({...advance(p,dt,1),life:p.life-dt})).filter(p=>p.life>0);
 }
 function line(a,b,c,width=1,dash=[]){const p=screen(a),q=screen(b);ctx.beginPath();ctx.setLineDash(dash);ctx.strokeStyle=c;ctx.lineWidth=width;ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();ctx.setLineDash([]);}
 function circle(p,r,fill,stroke,width=1){const q=screen(p);ctx.beginPath();ctx.arc(q.x,q.y,r*S,0,TAU);if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke();}}
 function label(text,p,c='#76677e',size=12){const q=screen(p);ctx.font=`${size}px Segoe UI, sans-serif`;ctx.fillStyle=c;ctx.textAlign='center';ctx.fillText(text,q.x,q.y);}
+function oval(x,y,rx,ry,fill,stroke){
+  ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,TAU);ctx.fillStyle=fill;ctx.fill();
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke();}
+}
+function raccoon(p,happy=false){
+  const q=screen(p);ctx.save();ctx.translate(q.x,q.y);
+  if(happy)ctx.rotate(Math.sin((clock-resultTime)*12)*.12*Math.max(0,1-(clock-resultTime)/2));
+  oval(1,17,18,5,'#49694b20');
+  // Original procedural character style from Calculus Racers: rounded body,
+  // outlined ears, eye mask, tiny smile and blush. Tail trails in flight.
+  ctx.save();ctx.translate(15,10);ctx.rotate(phase==='flight'?.8:.4);
+  oval(0,0,7,17,'#a3a7b2','#4e5064');
+  ctx.save();ctx.beginPath();ctx.ellipse(0,0,7,17,0,0,TAU);ctx.clip();
+  ctx.fillStyle='#5b5b70';for(let y=-13;y<18;y+=8)ctx.fillRect(-9,y,18,4);ctx.restore();ctx.restore();
+  for(const side of [-1,1]){oval(side*11,-13,7,8,'#939aa8','#4e5064');oval(side*11,-13,3.5,4,'#efb6bd');}
+  ctx.beginPath();ctx.roundRect(-15,-13,30,31,11);ctx.fillStyle='#b7bdc9';ctx.fill();ctx.strokeStyle='#4e5064';ctx.lineWidth=1.6;ctx.stroke();
+  oval(0,10,10,6,'#f9f3e8');oval(0,-2,14,7,'#56586e');
+  for(const side of [-1,1]){
+    oval(side*6,-2,3,3.5,'#fffaf3');oval(side*6,-1,1.5,2,'#30354c');
+    oval(side*10,6,3,1.8,'#eaa2af');oval(side*15,8,4,4,'#a8afbc','#4e5064');
+  }
+  oval(0,3,2.5,2,'#414357');ctx.beginPath();ctx.arc(0,6,3,0,Math.PI);ctx.strokeStyle='#414357';ctx.lineWidth=1.2;ctx.stroke();
+  ctx.restore();
+}
+function basket(p,r){
+  const q=screen(p),size=r*S;ctx.save();ctx.translate(q.x,q.y);
+  oval(0,7,size+12,size+8,'#49694b20');
+  ctx.beginPath();ctx.arc(0,-4,size+8,Math.PI,TAU);ctx.lineWidth=6;ctx.strokeStyle='#a57243';ctx.stroke();
+  oval(0,2,size+9,size+7,'#dba36b','#976844');
+  ctx.save();ctx.beginPath();ctx.ellipse(0,2,size+8,size+6,0,0,TAU);ctx.clip();
+  ctx.strokeStyle='#ba824f';ctx.lineWidth=2;
+  for(let n=-size-10;n<size+10;n+=7){ctx.beginPath();ctx.moveTo(n,-size-8);ctx.lineTo(n,size+9);ctx.moveTo(-size-10,n);ctx.lineTo(size+10,n);ctx.stroke();}ctx.restore();
+  oval(0,0,size+3,size+3,'#fff4df','#a57243');
+  ctx.save();ctx.beginPath();ctx.arc(0,0,size,0,TAU);ctx.clip();ctx.fillStyle='#f4bec6';
+  for(let x=-size;x<size;x+=8)for(let y=-size;y<size;y+=8)if((Math.round((x+size)/8)+Math.round((y+size)/8))%2===0)ctx.fillRect(x,y,8,8);ctx.restore();
+  // Pink circular landing zone matches the mathematical target radius.
+  ctx.beginPath();ctx.arc(0,0,size,0,TAU);ctx.lineWidth=2;ctx.strokeStyle='#be5476';ctx.stroke();
+  ctx.restore();
+}
+function leaves(p){
+  const q=screen(p);ctx.save();ctx.translate(Math.max(28,Math.min(W-28,q.x)),Math.max(28,Math.min(H-28,q.y)));
+  for(let i=0;i<9;i++){ctx.save();ctx.rotate(i*2.4);oval(8+i%3*3,0,12,5,['#b2c889','#e4ba79','#d99873'][i%3]);ctx.restore();}ctx.restore();
+}
 function draw(){
   ctx.clearRect(0,0,W,H);const c=color(),o=data.circle,p=shot||orbit(o,angle);
-  for(let i=-10;i<=10;i++)line({x:i,y:-8},{x:i,y:8},i===0?'#c6b9ca':'#ece3e8');
-  for(let i=-8;i<=8;i++)line({x:-11,y:i},{x:11,y:i},i===0?'#c6b9ca':'#ece3e8');
+  ctx.fillStyle='#f3f4df';ctx.fillRect(0,0,W,H);
+  // Border foliage stays outside the playable clearing.
+  for(let i=0;i<18;i++){const x=i*59-15;oval(x,8,33,24,i%2?'#d5e3b7':'#c4d8a5');oval(x,H+3,36,23,i%2?'#c4d8a5':'#d5e3b7');}
+  if(mode!=='arcade'||$('hints').checked){
+    for(let i=-10;i<=10;i++)line({x:i,y:-8},{x:i,y:8},i===0?'#bac5a5':'#e2e6d1');
+    for(let i=-8;i<=8;i++)line({x:-11,y:i},{x:11,y:i},i===0?'#bac5a5':'#e2e6d1');
+  }
   if(mode!=='arcade'){for(let i=-8;i<=8;i+=2){if(i){label(String(i),{x:i,y:-.4});if(Math.abs(i)<8)label(String(i),{x:-.35,y:i});}}label('x',{x:10.25,y:-.4});label('y',{x:.35,y:7.5});}
   circle({x:o.h,y:o.k},o.r,`${c}05`,`${c}70`,2);
   // A short arrow on the orbit makes the direction of rotation unambiguous.
   const ap=orbit(o,2.2),aq=advance(ap,1,.35);line(ap,aq,c,2);const as=screen(aq);ctx.save();ctx.translate(as.x,as.y);ctx.rotate(Math.atan2(-ap.dy,ap.dx));ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(5,0);ctx.lineTo(-6,-4);ctx.lineTo(-6,4);ctx.fill();ctx.restore();
-  circle({x:o.h,y:o.k},.055,c);label(mode==='arcade'?'ORBIT':`C ${xy({x:o.h,y:o.k})}`,{x:o.h,y:o.k-.5},'#76677e',11);
-  const r=targetRadius();circle(data.target,r+.15+Math.sin(clock*3)*.035,null,`${coral}22`,2);circle(data.target,r,`${coral}12`,coral,2);circle(data.target,r*.48,null,`${coral}90`,1.5);circle(data.target,.055,coral);label('TARGET',{x:data.target.x,y:data.target.y+r+.4},coral,10);
-  if(!shot){line({x:o.h,y:o.k},p,`${c}60`,1.5,[5,5]);}
+  const center={x:o.h,y:o.k};circle(center,.27,'#bd8e5d','#896440',2);circle(center,.17,null,'#9e744b');circle(center,.06,'#80603d');
+  label(mode==='arcade'?'SWING POST':`C ${xy(center)}`,{x:o.h,y:o.k-.55},'#76677e',11);
+  const r=targetRadius();basket(data.target,r);label('PICNIC BASKET',{x:data.target.x,y:data.target.y+r+.5},'#a24b67',10);
+  if(!shot){line(center,p,'#8e7048',5);line(center,p,'#d8b985',2,[4,3]);}
   const showRay=mode==='arcade'&&$('hints').checked||phase==='done';
   if(showRay){const origin=release||p;line(advance(origin,-1,2),advance(origin,1,14),`${c}80`,1.5,[7,7]);}
   if(trail.length>1){ctx.beginPath();trail.forEach((v,i)=>{const q=screen(v);i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);});ctx.strokeStyle=c;ctx.lineWidth=3;ctx.stroke();}
   if(mode==='arcade'&&phase==='orbit')for(let i=12;i>0;i--){const t=orbit(o,angle-i*.028);circle(t,.08,`${c}${Math.round(80*(1-i/13)).toString(16).padStart(2,'0')}`);}
-  // The soft halo is decoration; the solid center remains the ball's hit size.
-  ctx.shadowBlur=12;ctx.shadowColor=c;circle(p,.25,`${c}20`);circle(p,.14,c);ctx.shadowBlur=0;
-  const face=screen(p);ctx.fillStyle='#ffffff';
-  for(const side of [-1,1]){ctx.beginPath();ctx.arc(face.x+side*2,face.y-1.5,1,0,TAU);ctx.fill();}
-  ctx.beginPath();ctx.arc(face.x,face.y+.2,2,0,Math.PI);ctx.strokeStyle='#ffffff';ctx.lineWidth=1;ctx.stroke();
+  if(phase==='done'&&!landed)leaves(p);
+  const actor=phase==='done'?(landed?data.target:{x:Math.max(-10,Math.min(10,p.x)),y:Math.max(-7,Math.min(7,p.y))}):p;
+  raccoon(actor,phase==='done'&&landed);
+  // The small marker identifies the exact tracked point beneath the cosmetic sprite.
+  circle(actor,.13,null,`${c}80`,1);
   if(mode!=='arcade'&&!shot)label('P',{x:p.x+.4,y:p.y+.4},c,15);
-  for(const v of particles)circle(v,.045,coral);
-  if(phase==='ready'&&mode==='arcade'){label('A LITTLE SPIN. A LITTLE COURAGE. LET’S GO!' ,{x:0,y:-6.8},'#76677e',13);}
+  for(const v of particles)label('✦',v,'#c59030',12);
+  if(phase==='ready'&&mode==='arcade'){label('SWING. LET GO. LAND THE SNACK.' ,{x:0,y:-6.8},'#76677e',13);}
   if(paused){ctx.fillStyle='#07101cbb';ctx.fillRect(0,0,W,H);label('PAUSED',{x:0,y:0},'#eaf1fa',28);}
 }
 function frame(now){const dt=last?Math.min((now-last)/1000,.1):0;last=now;if(!document.hidden)step(dt);draw();requestAnimationFrame(frame);}
@@ -167,7 +222,7 @@ function setDifficulty(value){
   if(mode!=='arcade'||phase==='flight'||phase==='done'||!Number.isFinite(value))return;
   difficulty=Math.max(1,Math.min(5,Math.round(value)));
   $('difficulty').value=difficulty;
-  $('speed').value=(.4+(difficulty-1)*.3).toFixed(1);
+  $('speed').value=(.4+(difficulty-1)*1.4).toFixed(1);
   $('speed-output').textContent=`${$('speed').value}×`;
   applyDistance();
 }
@@ -197,7 +252,7 @@ $('answer-form').onsubmit=e=>{
   const expected=slope(orbit(data.circle,angle)),answer=parseSlope($('answer').value),dir=$('direction').value;
   if(Number.isNaN(answer)||!dir){say('Enter a number, fraction, or “undefined”, and choose a velocity direction.','error');return;}
   attempts++;const rightSlope=expected===Infinity?answer===Infinity:Number.isFinite(answer)&&Math.abs(answer-expected)<.005;
-  if(!rightSlope||dir!==direction(orbit(data.circle,angle))){say(`${!rightSlope?'Check the slope.':'The slope is right!'} ${!rightSlope?($('hints').checked?'Use offsets from the center: −(x − h)/(y − k).':'Try the slope again.'):'Check the velocity direction: the ball is moving counterclockwise.'}`,'error');updateStats();return;}
+  if(!rightSlope||dir!==direction(orbit(data.circle,angle))){say(`${!rightSlope?'Check the slope.':'The slope is right!'} ${!rightSlope?($('hints').checked?'Use offsets from the center: −(x − h)/(y − k).':'Try the slope again.'):'Check the velocity direction: the raccoon is swinging counterclockwise.'}`,'error');updateStats();return;}
   correct++;say('Correct slope and direction. Let’s test your prediction.','success');fire();
 };
 document.addEventListener('keydown',e=>{
