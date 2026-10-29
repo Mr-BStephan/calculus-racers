@@ -6,6 +6,8 @@ Repository: https://github.com/Mr-BStephan/calculus-racers · GitHub Pages targe
 
 ## Run locally
 
+Also in this repository: **[Tangent Target](https://mr-bstephan.github.io/calculus-racers/tangent-target/)**, a no-login tangent-motion arcade game with Arcade, Calculus, and One-Shot modes. See its [controls and maintenance guide](public/tangent-target/README.md).
+
 Install Node.js 22 or newer and pnpm 11. Then:
 
 ```sh
