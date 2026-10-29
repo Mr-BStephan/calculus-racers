@@ -68,11 +68,18 @@ test('difficulty increases forward target distance and orbit speed, preserving r
   const hard=g.run('Math.hypot(data.target.x-orbit(data.circle,data.solution).x,data.target.y-orbit(data.circle,data.solution).y)');
   assert.ok(hard>easy);assert.ok(Number(g.el('speed').value)>slow);
   assert.equal(Number(g.el('speed').value),6);
-  assert.ok(easy>=2.5-1e-9&&easy<=3.5+1e-9);
-  assert.ok(hard>=6.5-1e-9&&hard<=7.5+1e-9);
+  assert.ok(easy>=3-1e-9&&easy<=4+1e-9);
+  assert.ok(hard>=11-1e-9&&hard<=12+1e-9);
   assert.ok(g.run('Math.abs(data.target.y)*S+targetRadius()*S < H/2-25'));
   assert.ok(g.run('segmentDistance(orbit(data.circle,data.solution),advance(orbit(data.circle,data.solution),1,20),data.target)')<1e-9);
   g.el('launch').click();g.el('launch').click();assert.equal(g.el('difficulty').disabled,true);
+});
+test('Arcade keeps a fixed scale while difficulty shrinks the basket and increases visible distance',()=>{
+  const g=game();g.run('setDifficulty(1)');const scale=g.run('S'),easyRadius=g.run('targetRadius()');
+  const easyDistance=g.run('Math.hypot(data.target.x-data.circle.h,data.target.y-data.circle.k)*S');
+  g.run('setDifficulty(5)');assert.equal(g.run('S'),scale);assert.ok(g.run('targetRadius()')<easyRadius*.4);
+  assert.ok(g.run('Math.hypot(data.target.x-data.circle.h,data.target.y-data.circle.k)*S')>easyDistance*2);
+  g.run('angle=data.solution;fire()');const before=g.run('targetRadius()');g.run('step(3)');assert.equal(g.run('targetRadius()'),before);
 });
 test('Space cycles completed shots into an orbiting next target and fires with focused action buttons',()=>{
   const g=game();const space=(id='launch',repeat=false)=>g.events.keydown({code:'Space',repeat,target:{tagName:'BUTTON',id},preventDefault(){}});

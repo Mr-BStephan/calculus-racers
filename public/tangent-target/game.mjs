@@ -7,7 +7,7 @@ let mode='arcade', phase='ready', data, angle=0, shot=null, release=null, trail=
 let score=0,streak=0,level=1,correct=0,attempts=0,question=0,paused=false,last=0,clock=0;
 let closest=Infinity, shotTime=0, activeCode='', memory=new Map(), storageWarning=false, audio;
 let difficulty=3;
-let landed=false, resultTime=0;
+let landed=false, resultTime=0, shotRadius=null;
 const fmt=n=>Math.abs(n)<.00001?'0':Number(n.toFixed(3)).toString();
 const xy=p=>`(${fmt(p.x)}, ${fmt(p.y)})`;
 const color=()=>mode==='calculus'?'#8863b4':mode==='oneshot'?'#ab791f':teal;
@@ -50,7 +50,8 @@ function setControls(){
   updateStats();
 }
 function setup(){
-  S=42;
+  S=mode==='arcade'?23:42;
+  shotRadius=null;
   landed=false;
   phase='ready';paused=false;shot=null;release=null;trail=[];particles=[];closest=Infinity;shotTime=0;
   $('confirm').close();$('answer').value='';$('direction').value='';
@@ -92,7 +93,7 @@ function changeMode(next){
   setup();
 }
 function beep(hit){if(!$('sound').checked)return;try{audio??=new AudioContext();audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audio.destination);o.frequency.setValueAtTime(hit?660:180,audio.currentTime);o.frequency.exponentialRampToValueAtTime(hit?1100:90,audio.currentTime+.15);g.gain.setValueAtTime(.06,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.2);o.start();o.stop(audio.currentTime+.2);}catch{}}
-function fire(){if(phase==='flight'||phase==='done')return;release=orbit(data.circle,angle);shot={...release};trail=[{...release}];phase='flight';shotTime=0;closest=Infinity;setControls();}
+function fire(){if(phase==='flight'||phase==='done')return;shotRadius=targetRadius();release=orbit(data.circle,angle);shot={...release};trail=[{...release}];phase='flight';shotTime=0;closest=Infinity;setControls();}
 function launch(){
   if(paused||phase==='flight'||phase==='done')return;
   if(mode==='oneshot'){$('confirm-text').textContent=`Round ${activeCode}: release at ${fmt(angle*180/Math.PI)}°. This will use your only official attempt on this browser.`;$('confirm').showModal();return;}
@@ -118,7 +119,7 @@ function finish(hit){
   }else{score+=100;say(`Tangent confirmed! +100 points.\n${explain()}\nSlope describes the line; the velocity vector chooses which way along it.`,'success');}
   setControls();
 }
-function targetRadius(){return mode==='arcade'?Math.max(.23,.65-(level-1)*.035):.32;}
+function targetRadius(){return shotRadius??(mode==='arcade'?Math.max(.18,.9-(difficulty-1)*.16-(level-1)*.015):.32);}
 function step(dt){
   clock+=dt;
   if(!paused&&phase==='orbit')angle=(angle+dt*Number($('speed').value)*1.15)%TAU;
@@ -163,7 +164,7 @@ function raccoon(p,happy=false){
   ctx.restore();
 }
 function basket(p,r){
-  const q=screen(p),size=r*S;ctx.save();ctx.translate(q.x,q.y);
+  const q=screen(p),size=18;ctx.save();ctx.translate(q.x,q.y);ctx.scale(r*S/size,r*S/size);
   oval(0,7,size+12,size+8,'#49694b20');
   ctx.beginPath();ctx.arc(0,-4,size+8,Math.PI,TAU);ctx.lineWidth=6;ctx.strokeStyle='#a57243';ctx.stroke();
   oval(0,2,size+9,size+7,'#dba36b','#976844');
@@ -215,14 +216,13 @@ function draw(){
 function frame(now){const dt=last?Math.min((now-last)/1000,.1):0;last=now;if(!document.hidden)step(dt);draw();requestAnimationFrame(frame);}
 function setAngle(deg){if(mode!=='oneshot'||phase!=='ready'||!Number.isFinite(deg))return;deg=Math.max(0,Math.min(359.9,deg));angle=deg*Math.PI/180;$('angle').value=deg;$('angle-number').value=Number(deg.toFixed(1));updatePoint();}
 function applyDistance(){
-  const minimum=2.5+(difficulty-1),maximum=minimum+1;
+  const minimum=3+(difficulty-1)*2,maximum=minimum+1;
   const distance=minimum+data.distanceVariation;
   const target=advance(orbit(data.circle,data.solution),1,distance);
   data.target={x:target.x,y:target.y};
-  // Leave room for the basket, its label and sprite at every target angle.
-  S=Math.min(42,(W/2-55)/(Math.abs(target.x)+1),(H/2-60)/(Math.abs(target.y)+1));
+  // Arcade uses a fixed 23 pixels/unit so increasing distance never zooms away.
   $('difficulty-output').textContent=`${difficulty} · ${['Cozy','Gentle','Lively','Zippy','Spicy'][difficulty-1]}`;
-  $('difficulty-help').textContent=`Target distance: ${minimum}–${maximum} units along its winning tangent. Minimum distance rises with difficulty. Fine-tune speed below.`;
+  $('difficulty-help').textContent=`Target distance: ${minimum}–${maximum} units along its winning tangent. Basket diameter: ${fmt(targetRadius()*2)} units. Higher difficulty means farther, smaller baskets. Fine-tune speed below.`;
 }
 function setDifficulty(value){
   if(mode!=='arcade'||phase==='flight'||phase==='done'||!Number.isFinite(value))return;
