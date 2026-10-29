@@ -5,6 +5,7 @@ const W=900,H=680,S=42, teal='#328b79',coral='#da6783';
 let mode='arcade', phase='ready', data, angle=0, shot=null, release=null, trail=[], particles=[];
 let score=0,streak=0,level=1,correct=0,attempts=0,question=0,paused=false,last=0,clock=0;
 let closest=Infinity, shotTime=0, activeCode='', memory=new Map(), storageWarning=false, audio;
+let difficulty=3;
 const fmt=n=>Math.abs(n)<.00001?'0':Number(n.toFixed(3)).toString();
 const xy=p=>`(${fmt(p.x)}, ${fmt(p.y)})`;
 const color=()=>mode==='calculus'?'#8863b4':mode==='oneshot'?'#ab791f':teal;
@@ -34,6 +35,7 @@ function updatePoint(){const p=orbit(data.circle,angle);$('point').textContent=`
 function updateStats(){$('score').textContent=String(score).padStart(4,'0');$('streak').textContent=mode==='calculus'?`${correct}/${attempts}`:mode==='oneshot'?(phase==='ready'?'1':'0'):`${streak}×`;}
 function setControls(){
   const done=phase==='done',flying=phase==='flight';
+  $('difficulty').disabled=done||flying;
   $('launch').hidden=mode==='calculus'||done||flying;
   $('launch').textContent=mode==='oneshot'?'Lock in & launch ↗':phase==='ready'?'Start orbit ↗':'Release! ↗';
   $('launch').disabled=paused;
@@ -65,6 +67,7 @@ function setup(){
     say('Find the slope and use the counterclockwise motion to choose the velocity direction.');
   }else{
     data=round(`arcade-${Math.random()}`);angle=Math.random()*TAU;
+    applyDistance();
     say(`Target ${level}. Start the orbit, then press Space or Release when the tangent points at the target.`);
   }
   $('equation').textContent=equation(data.circle);updatePoint();setControls();
@@ -79,6 +82,7 @@ function changeMode(next){
   $('score-label').textContent=mode==='oneshot'?'ACCURACY / 1000':'SCORE';$('streak-label').textContent=mode==='calculus'?'SOLVED / TRIES':mode==='oneshot'?'SHOTS LEFT':'STREAK';
   $('math').hidden=mode==='arcade';$('challenge').hidden=mode!=='oneshot';
   $('speed').hidden=$('speed-label').hidden=mode!=='arcade';$('hints').disabled=mode==='oneshot';
+  $('difficulty-control').hidden=mode!=='arcade';
   $('lesson').hidden=!$('hints').checked||mode==='oneshot';
   setup();
 }
@@ -152,12 +156,28 @@ function draw(){
 }
 function frame(now){const dt=last?Math.min((now-last)/1000,.1):0;last=now;if(!document.hidden)step(dt);draw();requestAnimationFrame(frame);}
 function setAngle(deg){if(mode!=='oneshot'||phase!=='ready'||!Number.isFinite(deg))return;deg=Math.max(0,Math.min(359.9,deg));angle=deg*Math.PI/180;$('angle').value=deg;$('angle-number').value=Number(deg.toFixed(1));updatePoint();}
+function applyDistance(){
+  const distance=2.5+(difficulty-1)*.625;
+  const target=advance(orbit(data.circle,data.solution),1,distance);
+  data.target={x:target.x,y:target.y};
+  $('difficulty-output').textContent=`${difficulty} · ${['Cozy','Gentle','Lively','Zippy','Spicy'][difficulty-1]}`;
+  $('difficulty-help').textContent=`Target is ${fmt(distance)} units along its winning tangent. Higher difficulty means farther targets and faster orbits. Fine-tune speed below.`;
+}
+function setDifficulty(value){
+  if(mode!=='arcade'||phase==='flight'||phase==='done'||!Number.isFinite(value))return;
+  difficulty=Math.max(1,Math.min(5,Math.round(value)));
+  $('difficulty').value=difficulty;
+  $('speed').value=(.4+(difficulty-1)*.3).toFixed(1);
+  $('speed-output').textContent=`${$('speed').value}×`;
+  applyDistance();
+}
 document.querySelectorAll('button[data-mode]').forEach(b=>b.onclick=()=>changeMode(b.dataset.mode));
 $('launch').onclick=launch;
 $('next').onclick=()=>{question++;setup();};
 $('pause').onclick=()=>{paused=!paused;setControls();};
 $('hints').onchange=()=>{$('lesson').hidden=!$('hints').checked||mode==='oneshot';};
 $('speed').oninput=()=>{$('speed-output').textContent=`${$('speed').value}×`;};
+$('difficulty').oninput=e=>setDifficulty(Number(e.target.value));
 $('restart').onclick=()=>{if(mode==='oneshot'){$('round-code').value=`ROUND-${Math.random().toString(36).slice(2,8).toUpperCase()}`;setup();}else changeMode(mode);};
 $('load-round').onclick=setup;
 $('angle').oninput=e=>setAngle(Number(e.target.value));$('angle-number').oninput=e=>{if(e.target.value!=='')setAngle(Number(e.target.value));};

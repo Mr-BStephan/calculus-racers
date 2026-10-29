@@ -17,7 +17,7 @@
       <button class="primary" id="launch">Start orbit <span>↗</span></button><button id="next" class="primary" hidden>Next target <span>→</span></button><button id="pause" class="secondary" hidden>Pause</button>
       <div id="feedback" class="feedback" role="status" aria-live="polite">Ready when you are.</div>
       </div>
-      <div class="settings"><label id="speed-label" for="speed">Orbit speed <output id="speed-output">1×</output></label><input id="speed" type="range" min="0.4" max="1.6" step="0.1" value="1"><label class="toggle"><input id="hints" type="checkbox" checked> Show math hints & tangent preview</label><label class="toggle"><input id="sound" type="checkbox"> Sound effects</label><button class="text-button" id="restart">↻ Restart / new round</button></div>
+      <div class="settings"><div id="difficulty-control"><label for="difficulty">Difficulty <output id="difficulty-output">3 · Lively</output></label><input id="difficulty" type="range" min="1" max="5" step="1" value="3" aria-describedby="difficulty-help"><p class="fine" id="difficulty-help">Cozy → Spicy · changes orbit speed and target distance.</p></div><label id="speed-label" for="speed">Orbit speed <output id="speed-output">1×</output></label><input id="speed" type="range" min="0.4" max="1.6" step="0.1" value="1"><label class="toggle"><input id="hints" type="checkbox" checked> Show math hints & tangent preview</label><label class="toggle"><input id="sound" type="checkbox"> Sound effects</label><button class="text-button" id="restart">↻ Restart / new round</button></div>
     </aside>
   </section>
   <footer><span><kbd>SPACE</kbd> Start / release &nbsp; <kbd>P</kbd> Pause &nbsp; <kbd>R</kbd> Restart</span><span>AP CALCULUS AB · IMPLICIT DIFFERENTIATION</span></footer>

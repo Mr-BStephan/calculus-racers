@@ -6,7 +6,7 @@ A free, no-login calculus arcade game. No student information, analytics, databa
 
 ## Controls and modes
 
-- **Arcade:** Start the orbit, then press Space or Release to launch along the tangent. Hits earn 100 points plus a streak bonus, and targets gradually shrink. P pauses; R restarts. Speed and tangent previews are adjustable.
+- **Arcade:** Start the orbit, then press Space or Release to launch along the tangent. Hits earn 100 points plus a streak bonus, and targets gradually shrink. P pauses; R restarts. The five-step difficulty slider runs from Cozy to Spicy, increasing target distance along the winning tangent from 2.5 to 5 units and orbit speed from 0.4× to 1.6×. Speed can also be fine-tuned independently. Difficulty is locked during a shot and its result; use Next target to adjust again. Tangent previews are optional. Calculus and shared One-Shot rounds are unaffected by Arcade difficulty.
 - **Calculus:** Calculate the slope at the displayed point. Enter fractions, decimals (within 0.005), or `undefined` for vertical tangents. Predict the counterclockwise velocity direction, then launch. Eight repeating point patterns include horizontal and vertical tangents on translated circles. Disable hints for independent practice.
 - **One-Shot:** Give everyone the same round code for the same target. Drag the release marker, use the angle slider, or type degrees. Confirm one official launch. Scores range from 0 to 1,000: `round(1000 × max(0, 1 − closest-center-distance/3))`. Pre-launch tangent previews are disabled. Restart generates a new code; reusing an attempted code shows its saved result.
 

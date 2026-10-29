@@ -59,3 +59,14 @@ test('arcade keyboard launch, pause, hit, next target and hidden-tab pause',()=>
   key('KeyP');g.run('angle=data.solution');key('Space');g.run('step(2)');assert.equal(g.run('score'),100);assert.equal(g.run('streak'),1);
   g.el('next').click();key('Space');g.document.hidden=true;g.events.visibilitychange();assert.equal(g.run('paused'),true);
 });
+test('difficulty increases forward target distance and orbit speed, preserving reachable targets',()=>{
+  const g=game();
+  g.run('setDifficulty(1)');
+  const easy=g.run('Math.hypot(data.target.x-orbit(data.circle,data.solution).x,data.target.y-orbit(data.circle,data.solution).y)');
+  const slow=Number(g.el('speed').value);
+  g.run('setDifficulty(5)');
+  const hard=g.run('Math.hypot(data.target.x-orbit(data.circle,data.solution).x,data.target.y-orbit(data.circle,data.solution).y)');
+  assert.ok(hard>easy);assert.ok(Number(g.el('speed').value)>slow);
+  assert.ok(g.run('segmentDistance(orbit(data.circle,data.solution),advance(orbit(data.circle,data.solution),1,20),data.target)')<1e-9);
+  g.el('launch').click();g.el('launch').click();assert.equal(g.el('difficulty').disabled,true);
+});
