@@ -12,6 +12,8 @@ A free, no-login calculus arcade game. No student information, analytics, databa
 
 Tab and arrow keys operate controls. Sound is optional and off by default. All math uses positive y upward, counterclockwise rotation, and constant straight-line velocity after release, without gravity.
 
+**Continuous Space play:** In Arcade, press Space to start, then again to release. After the result, Space advances straight to the next orbiting target; the next press fires. This works with either launch or next-target focused. Holding Space does not auto-fire, and presses during flight do nothing. Inputs, links and other buttons keep their normal keyboard behavior.
+
 ## Classroom use and limitations
 
 Try 5–10 minutes of Arcade, 10 minutes of Calculus, then a shared One-Shot round. One-Shot results stay in this browser's localStorage. A saved reservation is verified before launch; if storage fails, the official launch is blocked. If saving the final result fails, the screen explains that the attempt remains used but a reload may show its reserved score of zero. Closing the page during flight also uses the attempt with a zero score.

@@ -70,3 +70,12 @@ test('difficulty increases forward target distance and orbit speed, preserving r
   assert.ok(g.run('segmentDistance(orbit(data.circle,data.solution),advance(orbit(data.circle,data.solution),1,20),data.target)')<1e-9);
   g.el('launch').click();g.el('launch').click();assert.equal(g.el('difficulty').disabled,true);
 });
+test('Space cycles completed shots into an orbiting next target and fires with focused action buttons',()=>{
+  const g=game();const space=(id='launch',repeat=false)=>g.events.keydown({code:'Space',repeat,target:{tagName:'BUTTON',id},preventDefault(){}});
+  space();assert.equal(g.run('phase'),'orbit');
+  g.run('angle=data.solution');space();assert.equal(g.run('phase'),'flight');
+  space();assert.equal(g.run('phase'),'flight');g.run('step(2)');assert.equal(g.run('phase'),'done');
+  space('next');assert.equal(g.run('phase'),'orbit');assert.equal(g.run('score'),100);
+  space('next',true);assert.equal(g.run('phase'),'orbit');
+  space('next');assert.equal(g.run('phase'),'flight');
+});

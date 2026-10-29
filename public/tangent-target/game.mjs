@@ -201,8 +201,16 @@ $('answer-form').onsubmit=e=>{
   correct++;say('Correct slope and direction. Let’s test your prediction.','success');fire();
 };
 document.addEventListener('keydown',e=>{
-  if(e.repeat||$('confirm').open||/INPUT|SELECT|TEXTAREA|BUTTON|SUMMARY/.test(e.target.tagName))return;
-  if(e.code==='Space'&&mode==='arcade'){e.preventDefault();launch();}
+  if($('confirm').open||/INPUT|SELECT|TEXTAREA|SUMMARY|A/.test(e.target.tagName))return;
+  if(e.target.tagName==='BUTTON'&&!['launch','next'].includes(e.target.id))return;
+  if(e.code==='Space'&&mode==='arcade'){
+    e.preventDefault();
+    if(e.repeat)return;
+    if(phase==='done'){question++;setup();}
+    launch();
+    return;
+  }
+  if(e.repeat)return;
   if(e.code==='KeyP'&&mode==='arcade'&&(phase==='orbit'||phase==='flight')){paused=!paused;setControls();}
   if(e.code==='KeyR')$('restart').click();
 });
